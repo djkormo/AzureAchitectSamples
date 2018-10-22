@@ -1,0 +1,20 @@
+#TYDZIEN3.1 „Zbuduj prost¹ konwencjê nazewnicz¹ dla min. takich zasobów jak Grupa Zasobów, VNET, Maszyn Wirtualna, Dysk, Konta sk³adowania danych. Pamiêtaj o ograniczeniach w nazywaniu zasobów, które wystêpuj¹ w 
+
+https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions
+
+
+Œrodowiska nie ma znaczenia DEV. SYS, INS UAT,PRD s¹ wykorzystywane w dedykowanych subskrypcjach.
+
+Na pocz¹tku przyjmujê 
+a) konwencjê nazewnicz¹ po angielsku
+b) wykorzystywane bêd¹ wy³¹cznie ma³e litery i znak - oddzielaj¹cy poszczególne sekcje/poziomy
+c) wykorzystane zostan¹ skróty pierwszych dwóch liter danego typu zasobu, jeœli jest ona wykorzystana w innym ttype zasoby bêda wykorzystane dalsze litery.
+KOlejne zasoby bêd¹ numerowane od 0001 do 9999  
+
+
+Przyk³ady:
+Grupa Zasobów (PL) = Resource Group (ENG) = regr-0001
+Sieæ wirtualna (PL_= Virtual Net (ENG) = vine-0001
+Maszyna Wirtualna (PL) = Virtual Machine (ENG) =vima-0001
+Hard Disk Drive (PL)- Dysk Twardy (ENG)  = hdd-
+Konto sk³adowania danych (PL)= Storage Account (ENG) = stac-0001
