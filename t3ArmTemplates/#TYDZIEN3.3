@@ -1,1 +1,85 @@
 #TYDZIEN3.3 „Zbuduj najprostrz¹ w³aœn¹ rolê RBAC, która pozwala u¿ytkownikowi uruchomiæ maszynê, zatrzymaæ j¹ i zg³osiæ zg³oszenie do supportu przez Portal Azure”
+
+
+Dokumentacja:
+
+https://docs.microsoft.com/en-us/azure/role-based-access-control/tutorial-custom-role-cli
+
+# logowanie siê do subskrypcji z poziomu Visual Studio Code, opcjonalne dla Azure Cloud Shella
+# az login 
+
+# ustalenia UID subskrypcji
+
+az account list --output table
+
+# tworzenie nowej roli typu custom  na podstawie definicji w pliku vmoperatorcustomrole.json
+
+az role definition create --role-definition vmoperatorcustomrole.json
+
+OUTPUT
+
+{
+  "assignableScopes": [
+    "/subscriptions/4c4b2672-d851-48df-ac91-624f1671c7d9"
+  ],
+  "description": "Startujemy i zatrzymujemy maszyny wirtualne, dodatkowo mamy mozliwosc zglaszania problemow do supportu ",
+  "id": "/subscriptions/4c4b2672-d851-48df-ac91-624f1671c7d9/providers/Microsoft.Authorization/roleDefinitions/22d60024-30b3-4956-830b-261e6d191c12",
+  "name": "22d60024-30b3-4956-830b-261e6d191c12",
+  "permissions": [
+    {
+      "actions": [
+        "Microsoft.Compute/virtualMachines/start/action",
+        "Microsoft.Compute/virtualMachines/powerOff/action",
+        "Microsoft.Compute/virtualMachines/read",
+        "Microsoft.Support/*"
+      ],
+      "dataActions": [],
+      "notActions": [],
+      "notDataActions": []
+    }
+  ],
+  "roleName": "Virtual Machine Operator for start/stop",
+  "roleType": "CustomRole",
+  "type": "Microsoft.Authorization/roleDefinitions"
+}
+
+
+
+# pobranie listy rol typu custom
+az role definition list --custom-role-only true --output=table
+
+Name                                     Type                                     Description
+---------------------------------------  ---------------------------------------  ------------------------------------------------------------------------------------------------------
+Virtual Machine Operator for start/stop  Microsoft.Authorization/roleDefinitions  Startujemy i zatrzymujemy maszyny wirtualne, dodatkowo mamy mozliwosc zglaszania problemow do supportu
+
+W Portalu -> subskrypcja -> IAM -> roles 
+
+
+
+Zawartoœæ vmoperatorcustomrole.json
+
+{
+  "Name":  "Virtual Machine Operator for start/stop",
+  "Id":  "curo-vmoperator-0001",
+  "IsCustom":  true,
+  "Description":  "Startujemy i zatrzymujemy maszyny wirtualne, dodatkowo mamy mozliwosc zglaszania problemow do supportu ",
+  "Actions":  [
+    "Microsoft.Compute/virtualMachines/start/action",
+    "Microsoft.Compute/virtualMachines/powerOff/action",
+    "Microsoft.Compute/virtualMachines/read",
+    
+    "Microsoft.Support/*"
+  ],
+  "NotActions":  [
+
+  ],
+  "DataActions":  [
+
+  ],
+  "NotDataActions":  [
+
+  ],
+  "AssignableScopes":  [
+    "/subscriptions/UID_SUBSKRYPCJI"
+  ]
+}
