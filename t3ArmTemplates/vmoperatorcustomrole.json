@@ -1,0 +1,26 @@
+
+{
+  "Name":  "Virtual Machine Operator for start/stop",
+  "Id":  "curo-vmoperator-0001",
+  "IsCustom":  true,
+  "Description":  "Startujemy i zatrzymujemy maszyny wirtualne, dodatkowo mamy mozliwosc zglaszania problemow do supportu ",
+  "Actions":  [
+    "Microsoft.Compute/virtualMachines/start/action",
+    "Microsoft.Compute/virtualMachines/powerOff/action",
+    "Microsoft.Compute/virtualMachines/read",
+    
+    "Microsoft.Support/*"
+  ],
+  "NotActions":  [
+
+  ],
+  "DataActions":  [
+
+  ],
+  "NotDataActions":  [
+
+  ],
+  "AssignableScopes":  [
+    "/subscriptions/4c4b2672-d851-48df-ac91-624f1671c7d9"
+  ]
+}
