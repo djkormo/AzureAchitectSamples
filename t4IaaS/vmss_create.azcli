@@ -1,0 +1,11 @@
+# logowanie z poziomu Visual Studio Code
+az login
+
+# tworzenie grupy zasobow
+az group create -l eastus -n rg-vmss
+# tworzenie przykladowego zestawu maszyn VMSS 
+az vmss create -n vmss-ubuntu -l eastus -g rg-vmss --vm-sku Standard_A1 --instance-count 3 --image UbuntuLTS  --generate-ssh-keys
+# usuniecie grupy zasobow
+az group delete -n rg-vmss --yes
+
+
