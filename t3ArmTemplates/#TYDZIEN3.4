@@ -1,0 +1,1 @@
+#TYDZIEN3.4 „Spróbuj na koniec zmodyfikowaæ template tak, by nazwa u¿ytkownika i has³o do ka¿dej maszyny z pkt. 2 by³o pobierane z KeyVault.„
