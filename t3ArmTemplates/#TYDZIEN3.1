@@ -1,6 +1,11 @@
 #TYDZIEN3.1 „Zbuduj prost¹ konwencjê nazewnicz¹ dla min. takich zasobów jak Grupa Zasobów, VNET, Maszyn Wirtualna, Dysk, Konta sk³adowania danych. Pamiêtaj o ograniczeniach w nazywaniu zasobów, które wystêpuj¹ w 
 
+Na podstawie:
 https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions
+https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions#naming-rules-and-restrictions
+
+
+"In general, avoid having any special characters (- or _) as the first or last character in any name. These characters will cause most validation rules to fail."
 
 
 Œrodowiska nie ma znaczenia DEV. SYS, INS UAT,PRD s¹ wykorzystywane w dedykowanych subskrypcjach.
@@ -9,12 +14,22 @@ Na pocz¹tku przyjmujê
 a) konwencjê nazewnicz¹ po angielsku
 b) wykorzystywane bêd¹ wy³¹cznie ma³e litery i znak - oddzielaj¹cy poszczególne sekcje/poziomy
 c) wykorzystane zostan¹ skróty pierwszych dwóch liter danego typu zasobu, jeœli jest ona wykorzystana w innym type zasobu bêda wykorzystane dalsze litery.
-d) kOlejne zasoby bêd¹ numerowane od 0001 do 9999  
-
+d) kolejne zasoby bêd¹ numerowane od 0001 do 9999  
+e) poczatek nazwy, powinien byæ jak najbardziej selektywny, wybieram  nazwe projektu lub systemu, np. RODO (wiem, ¿e modne)
 
 Przyk³ady:
-Grupa Zasobów (PL) = Resource Group (ENG) = regr-0001
-Sieæ wirtualna (PL_= Virtual Net (ENG) = vine-0001
-Maszyna Wirtualna (PL) = Virtual Machine (ENG) =vima-0001
-Hard Disk Drive (PL)- Dysk Twardy (ENG)  = hdd-0001
-Konto sk³adowania danych (PL)= Storage Account (ENG) = stac-0001
+Grupa Zasobów (PL) = Resource Group (ENG) = rodo-regr-0001
+Sieæ wirtualna (PL_= Virtual Net (ENG) = rodo-vine-0001
+Maszyna Wirtualna (PL) = Virtual Machine (ENG) =rodo-vima-0001
+Hard Disk Drive (PL)- Dysk Twardy (ENG)  = rodo-hdd-0001
+Konto sk³adowania danych (PL)= Storage Account (ENG) =  rodo-stacc-0001	 	
+
+
+Dodatkowo ka¿dy zasób powinien byæ otagowany
+
+DEPARTAMENT
+DZIAL
+CENTRUM KOSZTOWE
+SUPPORT
+SYSTEMIT
+ŒRODOWISKO
