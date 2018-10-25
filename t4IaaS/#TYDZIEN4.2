@@ -1,2 +1,6 @@
 #TYDZIEN4.2 Virtual Machine Scale Set
 VMSS nie s¹ czêsto u¿ywane w projektach. W ramach zadania nr. 2 napisz mi proszê do jakich warstw aplikacji u¿y³byœ Scale Set a nastêpnie spróbuj za pomoc¹ Azure CLI zbudowaæ swój prosty Scale Set. 
+
+VMSS to taki odpowiednik pseudo-konteneryzacji.
+Wyobra¿am sobie sytuacjê, gdzie mamy aplikacjê w architekturze  trójwarstwowej.
+Na obrazie VM, który bêdzie podstaw¹ dla VMSS uruchomiona jest czêœæ frontend i serwer aplikacji, niestety jest to np. Java w wersji 1.5 z archaicznym  serwerem aplikacji JBoss. Nie mamy kompetencji, by to przepisaæ na nowy kod. Backend z baza danych potrafi wielow¹tkowo obs³u¿yæ skalowanie pozosta³ych czêœci. 
