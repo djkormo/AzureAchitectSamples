@@ -6,14 +6,14 @@
       "admin-password": { "type": "securestring" }
     },
     "variables": {
-      "vnetID": "[resourceId('Microsoft.Network/virtualNetworks','djkormo-vnet-default')]", 
-      "subnetRef-1": "[concat(variables('vnetID'),'/subnets/djkormo-subnet-1-vm1')]",
-      "subnetRef-2": "[concat(variables('vnetID'),'/subnets/djkormo-subnet-2-vm2')]",
-      "nsg-name": "djkormo-nsg-default",
-      "vmname-1": "djkormo-vm-1-ubuntu",
-      "vmname-2": "djkormo-vm-2-ubuntu",
-      "nicname-1": "[concat('djkormo-', variables('vmname-1'), 'nick-default')]",
-      "nicname-2": "[concat('djkormo -', variables('vmname-2'), 'nick-default')]"
+      "vnetID": "[resourceId('Microsoft.Network/virtualNetworks','dj-vnet-default')]", 
+      "subnetRef-1": "[concat(variables('vnetID'),'/subnets/dj-subnet-1-vm1')]",
+      "subnetRef-2": "[concat(variables('vnetID'),'/subnets/dj-subnet-2-vm2')]",
+      "nsg-name": "dj-nsg-default",
+      "vmname-1": "dj-vm-1-ubuntu",
+      "vmname-2": "dj-vm-2-ubuntu",
+      "nicname-1": "[concat('dj-', variables('vmname-1'), 'nick-default')]",
+      "nicname-2": "[concat('dj-', variables('vmname-2'), 'nick-default')]"
     },
     "resources": [
         {
@@ -34,31 +34,31 @@
       {
         "apiVersion": "2016-03-30",
         "type": "Microsoft.Network/publicIPAddresses",
-        "name": "djkormo-pip-vm1ip",
+        "name": "dj-pip-vm1ip",
         "location": "[resourceGroup().location]",
         "properties": {
           "publicIPAllocationMethod": "Dynamic",
           "dnsSettings": {
-            "domainNameLabel": "djkormo-rg-we-dns-1"
+            "domainNameLabel": "dj-rg-we-dns-1"
           }
         }
       },
       {
         "apiVersion": "2016-03-30",
         "type": "Microsoft.Network/publicIPAddresses",
-        "name": "djkormo-pip-vm2ip",
+        "name": "dj-pip-vm2ip",
         "location": "[resourceGroup().location]",
         "properties": {
           "publicIPAllocationMethod": "Dynamic",
           "dnsSettings": {
-            "domainNameLabel": "djkormo-rg-we-dns-2"
+            "domainNameLabel": "dj-rg-we-dns-2"
           }
         }
       },
       {
         "apiVersion": "2016-03-30",
         "type": "Microsoft.Network/virtualNetworks",
-        "name": "djkormo-vnet-default",
+        "name": "dj-vnet-default",
         "location": "[resourceGroup().location]",
         "dependsOn": [
             "[concat('Microsoft.Resources/deployments/','nsg-deploy')]"
@@ -67,7 +67,7 @@
           "addressSpace": { "addressPrefixes": [ "10.0.0.0/16" ] },
           "subnets": [
             {
-              "name": "djkormo-subnet-1-vm1",
+              "name": "dj-subnet-1-vm1",
               "properties": { 
                   "addressPrefix": "10.0.0.0/24",
                   "networkSecurityGroup": {
@@ -76,7 +76,7 @@
                }
             },
             {
-                "name": "djkormo-subnet-2-vm2",
+                "name": "dj-subnet-2-vm2",
                 "properties": {
                     "addressPrefix": "10.0.1.0/24",
                     "networkSecurityGroup": {
@@ -93,8 +93,8 @@
         "name": "[variables('nicname-1')]",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-          "[resourceId('Microsoft.Network/publicIPAddresses/', 'djkormo-pip-vm1ip')]",
-          "[resourceId('Microsoft.Network/virtualNetworks/', 'djkormo-vnet-default')]"
+          "[resourceId('Microsoft.Network/publicIPAddresses/', 'dj-pip-vm1ip')]",
+          "[resourceId('Microsoft.Network/virtualNetworks/', 'dj-vnet-default')]"
         ],
         "properties": {
           "ipConfigurations": [
@@ -102,7 +102,7 @@
               "name": "ipconfig1",
               "properties": {
                 "privateIPAllocationMethod": "Dynamic",
-                "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses','djkormo-pip-vm1ip')]" },
+                "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses','dj-pip-vm1ip')]" },
                 "subnet": { "id": "[variables('subnetRef-1')]" }
               }
             }
@@ -115,8 +115,8 @@
         "name": "[variables('nicname-2')]",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-          "[resourceId('Microsoft.Network/publicIPAddresses/', 'djkormo-pip-vm2ip')]",
-          "[resourceId('Microsoft.Network/virtualNetworks/', 'djkormo-vnet-default')]"
+          "[resourceId('Microsoft.Network/publicIPAddresses/', 'dj-pip-vm2ip')]",
+          "[resourceId('Microsoft.Network/virtualNetworks/', 'dj-vnet-default')]"
         ],
         "properties": {
           "ipConfigurations": [
@@ -124,7 +124,7 @@
               "name": "ipconfig2",
               "properties": {
                 "privateIPAllocationMethod": "Dynamic",
-                "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses','djkormo-pip-vm2ip')]" },
+                "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses','dj-pip-vm2ip')]" },
                 "subnet": { "id": "[variables('subnetRef-2')]" }
               }
             }
