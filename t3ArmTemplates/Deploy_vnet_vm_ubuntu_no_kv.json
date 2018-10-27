@@ -1,0 +1,177 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "admin-username": { "type": "string" ,"defaultValue": "ubuntuadmin" },
+      "admin-password": { "type": "securestring" }
+    },
+    "variables": {
+      "vnetID": "[resourceId('Microsoft.Network/virtualNetworks','djkormo-vnet-default')]", 
+      "subnetRef-1": "[concat(variables('vnetID'),'/subnets/djkormo-subnet-1-vm1')]",
+      "subnetRef-2": "[concat(variables('vnetID'),'/subnets/djkormo-subnet-2-vm2')]",
+      "nsg-name": "djkormo-nsg-default",
+      "vmname-1": "djkormo-vm-1-ubuntu",
+      "vmname-2": "djkormo-vm-2-ubuntu",
+      "nicname-1": "[concat('djkormo-', variables('vmname-1'), 'nick-default')]",
+      "nicname-2": "[concat('djkormo -', variables('vmname-2'), 'nick-default')]"
+    },
+    "resources": [
+        {
+            "name": "nsg-deploy",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/t3ArmTemplates/network_security-group.json"
+                },
+                "parameters": {
+                    "nsg-name": {"value": "[variables('nsg-name')]"}
+                }
+            }
+        },
+      {
+        "apiVersion": "2016-03-30",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "djkormo-pip-vm1ip",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "publicIPAllocationMethod": "Dynamic",
+          "dnsSettings": {
+            "domainNameLabel": "djkormo-rg-we-dns-1"
+          }
+        }
+      },
+      {
+        "apiVersion": "2016-03-30",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "djkormo-pip-vm2ip",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "publicIPAllocationMethod": "Dynamic",
+          "dnsSettings": {
+            "domainNameLabel": "djkormo-rg-we-dns-2"
+          }
+        }
+      },
+      {
+        "apiVersion": "2016-03-30",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "djkormo-vnet-default",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+            "[concat('Microsoft.Resources/deployments/','nsg-deploy')]"
+        ],
+        "properties": {
+          "addressSpace": { "addressPrefixes": [ "10.0.0.0/16" ] },
+          "subnets": [
+            {
+              "name": "djkormo-subnet-1-vm1",
+              "properties": { 
+                  "addressPrefix": "10.0.0.0/24",
+                  "networkSecurityGroup": {
+                      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg-name'))]"
+                  }
+               }
+            },
+            {
+                "name": "djkormo-subnet-2-vm2",
+                "properties": {
+                    "addressPrefix": "10.0.1.0/24",
+                    "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg-name'))]"
+                    }
+                }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2016-03-30",
+        "type": "Microsoft.Network/networkInterfaces",
+        "name": "[variables('nicname-1')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/publicIPAddresses/', 'djkormo-pip-vm1ip')]",
+          "[resourceId('Microsoft.Network/virtualNetworks/', 'djkormo-vnet-default')]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses','djkormo-pip-vm1ip')]" },
+                "subnet": { "id": "[variables('subnetRef-1')]" }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2016-03-30",
+        "type": "Microsoft.Network/networkInterfaces",
+        "name": "[variables('nicname-2')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/publicIPAddresses/', 'djkormo-pip-vm2ip')]",
+          "[resourceId('Microsoft.Network/virtualNetworks/', 'djkormo-vnet-default')]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig2",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses','djkormo-pip-vm2ip')]" },
+                "subnet": { "id": "[variables('subnetRef-2')]" }
+              }
+            }
+          ]
+        }
+      },
+      {
+          "name": "vm-deploy",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2015-01-01",
+          "dependsOn": [
+              "[resourceId('Microsoft.Network/networkInterfaces',variables('nicname-1'))]"
+          ],
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "contentVersion": "1.0.0.0",
+                  "uri": "https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/t3ArmTemplates/vm_ubuntu.json"
+              },
+              "parameters": {
+                  "vm-name": { "value": "[variables('vmname-1')]" },
+                  "admin-username": { "value": "[parameters('admin-username')]" },
+                  "admin-password": { "value": "[parameters('admin-password')]" },
+                  "vm-nic": { "value": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicname-1'))]" }
+              }
+          }
+      },
+      {
+        "name": "vm-deploy-2",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2015-01-01",
+        "dependsOn": [
+            "[resourceId('Microsoft.Network/networkInterfaces',variables('nicname-2'))]"
+        ],
+        "properties": {
+            "mode": "Incremental",
+            "templateLink": {
+                "contentVersion": "1.0.0.0",
+                "uri": "https://raw.githubusercontent.com/BlackDante/arm-workshop/master/3.2/shared/vm.json"
+            },
+            "parameters": {
+                "vm-name": { "value": "[variables('vmname-2')]" },
+                "admin-username": { "value": "[parameters('admin-username')]" },
+                "admin-password": { "value": "[parameters('admin-password')]" },
+                "vm-nic": { "value": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicname-2'))]" }
+            }
+        }
+    }
+    ]
+  }
