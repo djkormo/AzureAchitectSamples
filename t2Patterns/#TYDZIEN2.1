@@ -1,1 +1,40 @@
 [#TYDZIEN2.1]  Na bazie poznanych wzorców projektowych wybierz 3, które chcia³byœ zastosowaæ wraz z uzasadnieniem przy ka¿dym z nich, dlaczego w³aœnie ten wzorzec projektowy bêdzie przydatny i jakie problemy ew. mo¿e rozwi¹zaæ. Uzasadnienie nie mo¿e byæ d³ugie – przy ka¿dym wzorcu postaraj siê nie przekroczyæ 5 punktów maksymalnie. Wystarcz¹ mi 3 dobre powody.
+
+
+Wieksosc systemow jakie do tej pory obserwowalem byly umieszczone w lokalnej serwerowni.
+Na poczatku byly niedoskalowane, po po kilku akcjach typu szczyt sprzedazy rok do roku ich wydajnoœæ by³a zwiêkszana.
+Takie systemy dzia³aj¹ sobie statycznie i z regu³y s¹ mocno przestalowane, tak by nawet zwiêkszony ruch nie by³ w stanie zaburzyæ ich wydajnoœci.
+
+
+
+1. Cache-Aside pattern:
+
+Czestym problem aplikacji jest odpytywanie cykliczne bazy danych o konfiguracje  produktow logistycznych lub sprzedazowych.
+Dzieje siê tak nawet w sytuacji, gdzie takie s³owniki s¹ wolnozmienne w czasie. Ich zawartoœæ jest zmieniana np. raz w tygodniu nie czêœciej.
+Dodatkowy szybki cache poœrednicz¹cy odci¹zy bazy danych od zbêdnych zapytañ bazodanowego systemu OLTP. 
+
+
+
+
+2. Priority Queue pattern:
+
+
+Wyobrazmy sobie system przechowuj¹cy dane osobowe, które ze wzglêdu na regulacje podlegaj¹ cyklicznego usuwaniu zgodnie z korporacyjn¹ polityk¹ retencji. 
+To nasz proces A.
+
+Ten sam system ma obs³uzyæ usuniêcie danych osobowych na ¿¹danie. 
+Wynika to z poprawy b³êdnych danych , które przekazano do systemu lub wynika to z pozytywnego rozpatrzenia reklamacji.
+To nasz proces B.
+
+Danych w procesie A jest dwa rzêdy wielkoœci wiêcej ni¿ w procesie B.
+
+Zastosowanie priorytetyzacji komunikatów i ich procesowanie z uwzglêdnieniem priorytetów pozwala na sprawne osb³u¿enie obu procesów.
+Bez tego proces B czeka³by na zawsze na zakoñczenie procesu A.
+
+
+
+3. Static Content Hosting pattern:
+
+System  frontendowy wystawiony w publicznym DMZ, który zostarcza wiele zawartoœci w postaci statycznych plików: obrazy, muzyka, filmy, dokumenty.
+Tej czêsci nie trzymamy w bazie danych, ale z regu³y na dyskach serwera plikowego. Celem rozwi¹zania jest przygotowanie lokalnych kopii zawartoœci , w taki sposób, czy czas dostarczenia filmu lub obrazu by³ mo¿liwie najszybszy.  Czêsto pobierane pliki s¹ trzymane na lokalnych kopiach z ustalonym czasem ¿ycia.
+
