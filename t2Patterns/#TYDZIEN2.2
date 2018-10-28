@@ -1,1 +1,29 @@
 [#TYDZIEN2.2]  Jeœli to mo¿liwe, przy wybranym wzorcu projektowym, zaproponuj, których us³ug byœ u¿y³, by wzorzec ten zaimplementowaæ. Krótko uzasadnij, dlaczego bêdzie to najbardziej efektywne podejœcie. 
+
+1. Cache-Aside pattern:
+#https://docs.microsoft.com/en-us/azure/architecture/patterns/cache-aside
+
+Tu zdecydowanie wykorzyta³bym  Redis Cache. Rozwi¹zanie to  pozwala trzymaæ w piamiêci nie tylko proste zmienne, ale równie¿, listy,  zbiory.
+Dziêi temu mo¿na ogranicznyc zminy w kodzie po stronie programistycznej. A kontrole czasu ¿ycia  zapisanych danych w cache powierzyæ czêœci konfiguracyjnej, czyli przenieœæ do administracji systemu.
+
+2. Priority Queue pattern:
+
+#https://markheath.net/post/priority-queues-with-azure-service-bus
+Tu zdecydowanie u¿y³bym Azure Service Bus, który umo¿liwia logiczny podzia³ komunikatów i ustalenie piorytetów na podstawie logiki binzesowej
+
+3. Static Content Hosting pattern:
+
+#https://docs.microsoft.com/en-us/azure/cdn/cdn-features
+
+Tu wykorzysta³bym gotowe rozwi¹zania Azure CDN, np. Standard Akamai lub Standard Verizon, w zale¿noœci od tego jakiego typu pliku mia³yby podlegaæ procesowi.
+
+Jeœli s¹ to g³ównie pliki video (taki lokalny Netflix), to proponujê Akamai, w pozosta³ych przypadkach proponujê Verizon.
+Ale równie dobrze mo¿na siê zastanowiæ nad rozwi¹zaniem typu CloudFlare, nale¿y ca³y czas myœleæ o kosztach danej us³ugi.
+
+Ciekawy przypadek:
+
+#https://dostarczajwartosc.pl/jak-drozsze-uslugi-zmniejszaja-koszty/
+
+
+
+
