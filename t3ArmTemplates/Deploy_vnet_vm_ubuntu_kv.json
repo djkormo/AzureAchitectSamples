@@ -2,12 +2,10 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "admin-username": { "type": "string" ,"defaultValue": "ubuntuadmin" },
-      "admin-password": { "type": "securestring" },
-      "keyvault-rg": { "type": "string" ,"defaultValue": "keyvault-for-vm" },
+      "keyvault-rg": { "type": "string" ,"defaultValue": "rg-keyvault-vm" },
       "keyvault-name": { "type": "string" ,"defaultValue": "keyvault-for-vm" },
       "keyvault-username": { "type": "string" ,"defaultValue": "keyvault-for-vm-user" },
-      "keyvault-passsword": { "type": "string" ,"defaultValue": "keyvault-for-vm-password" }
+      "keyvault-password": { "type": "string" ,"defaultValue": "keyvault-for-vm-password" }
     },
     "variables": {
       "vnetID": "[resourceId('Microsoft.Network/virtualNetworks','dj-vnet-default')]", 
@@ -17,9 +15,7 @@
       "vmname-1": "dj-vm-1-ubuntu",
       "vmname-2": "dj-vm-2-ubuntu",
       "nicname-1": "[concat('dj-', variables('vmname-1'), 'nick-default')]",
-      "nicname-2": "[concat('dj-', variables('vmname-2'), 'nick-default')]",
-      "vm-username": "[parameters('admin-username')]",
-      "vm-password": "[parameters('admin-password')]"
+      "nicname-2": "[concat('dj-', variables('vmname-2'), 'nick-default')]"
     },
     "resources": [
         {
@@ -152,8 +148,22 @@
               },
               "parameters": {
                   "vm-name": { "value": "[variables('vmname-1')]" },
-                  "admin-username": { "value": "[variables('vm-username')]" },
-                  "admin-password": { "value": "[variables('vm-password')]" },
+                  "admin-username": {
+                    "reference": {
+                        "keyvault": {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('keyvault-rg'), '/providers/Microsoft.KeyVault/vaults/', parameters('keyvault-name'))]"
+                        },
+                        "secretName": "[parameters('keyvault-username')]"
+                    }
+                },
+                "admin-password": {
+                    "reference": {
+                        "keyvault": {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('keyvault-rg'), '/providers/Microsoft.KeyVault/vaults/', parameters('keyvault-name'))]"
+                        },
+                        "secretName": "[parameters('keyvault-password')]"
+                    }
+                },
                   "vm-nic": { "value": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicname-1'))]" }
               }
           }
@@ -173,8 +183,22 @@
             },
             "parameters": {
                 "vm-name": { "value": "[variables('vmname-2')]" },
-                "admin-username": { "value": "[parameters('admin-username')]" },
-                "admin-password": { "value": "[parameters('admin-password')]" },
+                "admin-username": {
+                    "reference": {
+                        "keyvault": {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('keyvault-rg'), '/providers/Microsoft.KeyVault/vaults/', parameters('keyvault-name'))]"
+                        },
+                        "secretName": "[parameters('keyvault-username')]"
+                    }
+                },
+                "admin-password": {
+                    "reference": {
+                        "keyvault": {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('keyvault-rg'), '/providers/Microsoft.KeyVault/vaults/', parameters('keyvault-name'))]"
+                        },
+                        "secretName": "[parameters('keyvault-password')]"
+                    }
+                },
                 "vm-nic": { "value": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicname-2'))]" }
             }
         }

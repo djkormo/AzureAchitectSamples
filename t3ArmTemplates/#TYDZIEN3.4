@@ -1,1 +1,231 @@
 #TYDZIEN3.4 „Spróbuj na koniec zmodyfikowaæ template tak, by nazwa u¿ytkownika i has³o do ka¿dej maszyny z pkt. 2 by³o pobierane z KeyVault.„
+
+
+Ciekawe zadanie
+
+jesli poda sie nieistniejacy keyvault
+
+mamy tak:
+
+
+{"telemetryId":"247a0ea5-6224-4924-ab81-926689622f98","bladeInstanceId":"Blade_052113878c4c43a397b6463c064c2d54_26_0","galleryItemId":"Microsoft.Template.2.0.0","createBlade":"DeployToAzure","code":"MultipleErrorsOccurred","message":"Multiple error occurred: BadRequest,BadRequest. Please see details.","details":[{"code":"KeyVaultParameterReferenceNotFound","message":"The specified KeyVault '/subscriptions/4c4b2672-d851-48df-ac91-624f1671c7d9/resourceGroups/rg-keyvault-v/providers/Microsoft.KeyVault/vaults/keyvault-for-vm' could not be found. Please see https://aka.ms/arm-keyvault for usage details."},{"code":"KeyVaultParameterReferenceNotFound","message":"The specified KeyVault '/subscriptions/4c4b2672-d851-48df-ac91-624f1671c7d9/resourceGroups/rg-keyvault-v/providers/Microsoft.KeyVault/vaults/keyvault-for-vm' could not be found. Please see https://aka.ms/arm-keyvault for usage details."}]}
+
+
+jesli podajemy istniejacy keyvault 
+
+
+mamy tak
+
+{"telemetryId":"247a0ea5-6224-4924-ab81-926689622f98","bladeInstanceId":"Blade_052113878c4c43a397b6463c064c2d54_26_0","galleryItemId":"Microsoft.Template.2.0.0","createBlade":"DeployToAzure","code":"MultipleErrorsOccurred","message":"Multiple error occurred: Conflict,Conflict. Please see details.","details":[{"code":"KeyVaultParameterReferenceSecretRetrieveFailed","message":"The secret of KeyVault parameter 'admin-username' cannot be retrieved. Http status code: 'Forbidden'. Error message: 'Access denied'. Please see https://aka.ms/arm-keyvault for usage details."},{"code":"KeyVaultParameterReferenceSecretRetrieveFailed","message":"The secret of KeyVault parameter 'admin-password' cannot be retrieved. Http status code: 'Forbidden'. Error message: 'Access denied'. Please see https://aka.ms/arm-keyvault for usage details."}]}
+
+
+
+Aktualna wersja template
+
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "keyvault-rg": { "type": "string" ,"defaultValue": "rg-keyvault-vm" },
+      "keyvault-name": { "type": "string" ,"defaultValue": "keyvault-for-vm" },
+      "keyvault-username": { "type": "string" ,"defaultValue": "keyvault-for-vm-user" },
+      "keyvault-password": { "type": "string" ,"defaultValue": "keyvault-for-vm-password" }
+    },
+    "variables": {
+      "vnetID": "[resourceId('Microsoft.Network/virtualNetworks','dj-vnet-default')]", 
+      "subnetRef-1": "[concat(variables('vnetID'),'/subnets/dj-subnet-1-vm1')]",
+      "subnetRef-2": "[concat(variables('vnetID'),'/subnets/dj-subnet-2-vm2')]",
+      "nsg-name": "dj-nsg-default",
+      "vmname-1": "dj-vm-1-ubuntu",
+      "vmname-2": "dj-vm-2-ubuntu",
+      "nicname-1": "[concat('dj-', variables('vmname-1'), 'nick-default')]",
+      "nicname-2": "[concat('dj-', variables('vmname-2'), 'nick-default')]"
+    },
+    "resources": [
+        {
+            "name": "nsg-deploy",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/t3ArmTemplates/network_security-group.json"
+                },
+                "parameters": {
+                    "nsg-name": {"value": "[variables('nsg-name')]"}
+                }
+            }
+        },
+      {
+        "apiVersion": "2016-03-30",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "dj-pip-vm1ip",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "publicIPAllocationMethod": "Dynamic",
+          "dnsSettings": {
+            "domainNameLabel": "dj-rg-we-dns-1"
+          }
+        }
+      },
+      {
+        "apiVersion": "2016-03-30",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "dj-pip-vm2ip",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "publicIPAllocationMethod": "Dynamic",
+          "dnsSettings": {
+            "domainNameLabel": "dj-rg-we-dns-2"
+          }
+        }
+      },
+      {
+        "apiVersion": "2016-03-30",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "dj-vnet-default",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+            "[concat('Microsoft.Resources/deployments/','nsg-deploy')]"
+        ],
+        "properties": {
+          "addressSpace": { "addressPrefixes": [ "10.0.0.0/16" ] },
+          "subnets": [
+            {
+              "name": "dj-subnet-1-vm1",
+              "properties": { 
+                  "addressPrefix": "10.0.0.0/24",
+                  "networkSecurityGroup": {
+                      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg-name'))]"
+                  }
+               }
+            },
+            {
+                "name": "dj-subnet-2-vm2",
+                "properties": {
+                    "addressPrefix": "10.0.1.0/24",
+                    "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg-name'))]"
+                    }
+                }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2016-03-30",
+        "type": "Microsoft.Network/networkInterfaces",
+        "name": "[variables('nicname-1')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/publicIPAddresses/', 'dj-pip-vm1ip')]",
+          "[resourceId('Microsoft.Network/virtualNetworks/', 'dj-vnet-default')]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses','dj-pip-vm1ip')]" },
+                "subnet": { "id": "[variables('subnetRef-1')]" }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2016-03-30",
+        "type": "Microsoft.Network/networkInterfaces",
+        "name": "[variables('nicname-2')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/publicIPAddresses/', 'dj-pip-vm2ip')]",
+          "[resourceId('Microsoft.Network/virtualNetworks/', 'dj-vnet-default')]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig2",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses','dj-pip-vm2ip')]" },
+                "subnet": { "id": "[variables('subnetRef-2')]" }
+              }
+            }
+          ]
+        }
+      },
+      {
+          "name": "vm-deploy",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2015-01-01",
+          "dependsOn": [
+              "[resourceId('Microsoft.Network/networkInterfaces',variables('nicname-1'))]"
+          ],
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "contentVersion": "1.0.0.0",
+                  "uri": "https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/t3ArmTemplates/vm_ubuntu.json"
+              },
+              "parameters": {
+                  "vm-name": { "value": "[variables('vmname-1')]" },
+                  "admin-username": {
+                    "reference": {
+                        "keyvault": {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('keyvault-rg'), '/providers/Microsoft.KeyVault/vaults/', parameters('keyvault-name'))]"
+                        },
+                        "secretName": "[parameters('keyvault-username')]"
+                    }
+                },
+                "admin-password": {
+                    "reference": {
+                        "keyvault": {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('keyvault-rg'), '/providers/Microsoft.KeyVault/vaults/', parameters('keyvault-name'))]"
+                        },
+                        "secretName": "[parameters('keyvault-password')]"
+                    }
+                },
+                  "vm-nic": { "value": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicname-1'))]" }
+              }
+          }
+      },
+      {
+        "name": "vm-deploy-2",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2015-01-01",
+        "dependsOn": [
+            "[resourceId('Microsoft.Network/networkInterfaces',variables('nicname-2'))]"
+        ],
+        "properties": {
+            "mode": "Incremental",
+            "templateLink": {
+                "contentVersion": "1.0.0.0",
+                "uri": "https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/t3ArmTemplates/vm_ubuntu.json"
+            },
+            "parameters": {
+                "vm-name": { "value": "[variables('vmname-2')]" },
+                "admin-username": {
+                    "reference": {
+                        "keyvault": {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('keyvault-rg'), '/providers/Microsoft.KeyVault/vaults/', parameters('keyvault-name'))]"
+                        },
+                        "secretName": "[parameters('keyvault-username')]"
+                    }
+                },
+                "admin-password": {
+                    "reference": {
+                        "keyvault": {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('keyvault-rg'), '/providers/Microsoft.KeyVault/vaults/', parameters('keyvault-name'))]"
+                        },
+                        "secretName": "[parameters('keyvault-password')]"
+                    }
+                },
+                "vm-nic": { "value": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicname-2'))]" }
+            }
+        }
+    }
+    ]
+  }
