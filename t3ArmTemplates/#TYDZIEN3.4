@@ -24,6 +24,14 @@ mamy tak
 {"telemetryId":"247a0ea5-6224-4924-ab81-926689622f98","bladeInstanceId":"Blade_052113878c4c43a397b6463c064c2d54_26_0","galleryItemId":"Microsoft.Template.2.0.0","createBlade":"DeployToAzure","code":"MultipleErrorsOccurred","message":"Multiple error occurred: Conflict,Conflict. Please see details.","details":[{"code":"KeyVaultParameterReferenceSecretRetrieveFailed","message":"The secret of KeyVault parameter 'admin-username' cannot be retrieved. Http status code: 'Forbidden'. Error message: 'Access denied'. Please see https://aka.ms/arm-keyvault for usage details."},{"code":"KeyVaultParameterReferenceSecretRetrieveFailed","message":"The secret of KeyVault parameter 'admin-password' cannot be retrieved. Http status code: 'Forbidden'. Error message: 'Access denied'. Please see https://aka.ms/arm-keyvault for usage details."}]}
 
 
+Podczas utworzenia klucza
+
+
+--enabled-for-template-deployment true
+
+az keyvault create \ --name $keyVaultName \ --resource-group $resourceGroupName \ --location $location \ --enabled-for-template-deployment true
+
+
 
 Aktualna wersja template
 
