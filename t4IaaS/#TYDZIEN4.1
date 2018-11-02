@@ -1,2 +1,69 @@
 #TYDZIEN4.1 Na bazie swoich doœwiadczeñ i podstawowej wiedzy o maszynach wirtualnych oraz Scale Set zaproponuj kilka kroków, które byœ zrealizowa³ w ramach takiej migracji. Przy ka¿dym kroku napisz maksymalnie 2-3 zdania, jakie czynnoœci w takim kroku byœ zrealizowa³.
 Pamiêtaj o ograniczeniach w chmurze, limitach oraz ograniczeniach co do tego, jakie parametry wirtualnych maszyn, mo¿esz uzyskaæ w Azure.
+
+
+W dwóch wersjach.
+
+
+CorpoStyle:
+
+Jestem CEO wielkiej korporacji. Dosta³em za zadanie  migracjê infrastruktury do chmury publicznej. Wzywam swojego zastêpcê (CTO) i przekazujê mu to zadania.
+Misja zakoñczona.
+
+
+Na powa¿nie:
+
+1. OdpowiedŸ na pytanie, co mamy aktualnie.
+
+Przygotowanie ewicencji naszych systemow on premise.
+a) Jaki platforma sprzetowa (AIX, x86....)
+b) Jaki system operacyjny (Windows server 2018 R2, Windows Server 2016, Ubuntu 14:04...)
+c) Jaki jêzyk programowania i jego wersja ( Python 3.6, Java 6 SE, .NET 4.5, ...)
+d) Jakie bazy danych i ich wersje ( MS SQL 2005 , MSSSQL 2008 R1, Posgresql, Mysql, Oracle DB ...)
+e) Utylizacja aplikacji (wykorzystanie pamiêci, CPU, ruchu sieciowego w funkcji czasu, IO Dysków) w ostatnim roku.
+
+Ustaliæ typowe kombinacje  a), b),c) i d).
+
+Nowe aplikacje powinny byæ budowane o mo¿liwie ten sam stos technologiczny.
+
+2. Przebudowa aplikacji pod architekturê "cloud native"
+
+a) Zmiana wersji systemów operacyjnych, jêzyków programowania,serwerów aplikacji, silników baz danych na takie które s¹ wspierane w  standardowych obrazach maszyn wirtualnych i us³ugach PaaS.
+
+b) Przebudowa aplikacji webowych, tak by³ migracja do usg³ug PaaS by³a mo¿liwa.
+Jeœli z powodu specyfiki aplikacji, starego kodu , wykorzystanych w nim niestandardowych bibliotek nie d¹ siê podbiæ
+wersji poszczególnych komponentów, nale¿y podj¹æ próbê wrzucenia  czêœæ aplikacji do kontenera z wy³¹czeniem bazy danych. Je¿eli taka próba  w œrodowisku lokalnym nie uda siê, aplikacje pozostan¹ w nim i nie bêd¹ mingowane.
+
+
+
+3. Co zostawiæ w naszej serwerowni
+
+a) Œrodowiska duzych relacyjnych baz danych,
+b) systemy legacy pisane w archaiczny  sposób z du¿ym d³ugiem technologicznym.
+c) systemy, które ze wzglêdu na wra¿liwoœæ danych  nie mog¹ opuszczaæ sieci wewnêtrznej
+
+4. Migracja  do chmury œrodowisk developerskich i testowych
+
+
+Przed³u¿enie AD do Azure AD. Synchronizacja hase³ dla wybranej grupy uzytkowników (testy developerskie, testy IT, testy biznesowe)
+
+
+Przygotowanie skryptów tworzenia infrastruktury chmurowej w postac IaaC i trzymanie jest  w repozytorium kodu.
+Pozwoli to na wiêksz¹ kontrolê i zwiêkszy ³atwoœæ zmian przy budowie kolejnych iteracji kodu IaaC.
+Rozpoczêcie testów na aplikacjach, które maj¹ typowe kombinacje elementow oprogramowania. 
+
+
+
+5. Migracja do chmury œrodowisk produkcyjnych.
+a) Po przeniesieniu us³ug na rozwi¹zania IaaS (VM lub VMSS), nale¿y dokonac oceny ich utylizacji w stosunku do tej ,któr¹ wyznaczano na podstawie metryk œrodowiska om-premise. Je¿eli bêdzie to zasadne nale¿y  przeskalowaæ rozwi¹zania w górê lub w dó³.
+b) Po przeniesieniu us³ug na rozwi¹zania PaaS (App Service i bazy danych ), nale¿y dokonac oceny ich utylizacji w stosunku do tej ,któr¹ wyznaczano na podstawie metryk œrodowiska om-premise. Je¿eli bêdzie to zasadne nale¿y  przeskalowaæ rozwi¹zania w górê lub w dó³.
+
+
+
+
+
+
+
+
+
+

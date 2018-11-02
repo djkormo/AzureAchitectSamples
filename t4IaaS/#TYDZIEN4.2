@@ -4,3 +4,15 @@ VMSS nie s¹ czêsto u¿ywane w projektach. W ramach zadania nr. 2 napisz mi proszê
 VMSS to taki odpowiednik pseudo-konteneryzacji.
 Wyobra¿am sobie sytuacjê, gdzie mamy aplikacjê w architekturze  trójwarstwowej.
 Na obrazie VM, który bêdzie podstaw¹ dla VMSS uruchomiona jest czêœæ frontend i serwer aplikacji, niestety jest to np. Java w wersji 1.5 z archaicznym  serwerem aplikacji JBoss. Nie mamy kompetencji, by to przepisaæ na nowy kod. Backend z baza danych potrafi wielow¹tkowo obs³u¿yæ skalowanie pozosta³ych czêœci. 
+
+
+
+# logowanie z poziomu Visual Studio Code
+az login
+
+# tworzenie grupy zasobow
+az group create -l eastus -n rg-vmss
+# tworzenie przykladowego zestawu maszyn VMSS 
+az vmss create -n vmss-ubuntu -l eastus -g rg-vmss --vm-sku Standard_A1 --instance-count 3 --image UbuntuLTS  --generate-ssh-keys
+# usuniecie grupy zasobow
+az group delete -n rg-vmss --yes
