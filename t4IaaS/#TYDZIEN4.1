@@ -7,7 +7,7 @@ W dwóch wersjach.
 
 CorpoStyle:
 
-Jestem CEO wielkiej korporacji. Dosta³em za zadanie  migracjê infrastruktury do chmury publicznej. Wzywam swojego zastêpcê (CTO) i przekazujê mu to zadania.
+Jestem CEO wielkiej korporacji. Dosta³em za zadanie migracjê infrastruktury do chmury publicznej. Wzywam swojego zastêpcê (CTO) i przekazujê mu to zadania.
 Misja zakoñczona.
 
 
@@ -21,10 +21,13 @@ b) Jaki system operacyjny (Windows server 2018 R2, Windows Server 2016, Ubuntu 1
 c) Jaki jêzyk programowania i jego wersja ( Python 3.6, Java 6 SE, .NET 4.5, ...)
 d) Jakie bazy danych i ich wersje ( MS SQL 2005 , MSSSQL 2008 R1, Posgresql, Mysql, Oracle DB ...)
 e) Utylizacja aplikacji (wykorzystanie pamiêci, CPU, ruchu sieciowego w funkcji czasu, IO Dysków) w ostatnim roku.
+f) które z aplikacji musz¹ byæ wystawione na zewn¹trz (z publicznym IP).
+g) ka¿da aplikacja powinna byæ skierowania do ponownej analizy biznesowej, celem uaktualizacji zasadnoœci istnienia, impaktu  biznesowego i  weryfikacji kto jest opiekunem biznesowym.
 
 Ustaliæ typowe kombinacje  a), b),c) i d).
 
 Nowe aplikacje powinny byæ budowane o mo¿liwie ten sam stos technologiczny.
+
 
 2. Przebudowa aplikacji pod architekturê "cloud native"
 
@@ -32,7 +35,7 @@ a) Zmiana wersji systemów operacyjnych, jêzyków programowania,serwerów aplikacji
 
 b) Przebudowa aplikacji webowych, tak by³ migracja do usg³ug PaaS by³a mo¿liwa.
 Jeœli z powodu specyfiki aplikacji, starego kodu , wykorzystanych w nim niestandardowych bibliotek nie d¹ siê podbiæ
-wersji poszczególnych komponentów, nale¿y podj¹æ próbê wrzucenia  czêœæ aplikacji do kontenera z wy³¹czeniem bazy danych. Je¿eli taka próba  w œrodowisku lokalnym nie uda siê, aplikacje pozostan¹ w nim i nie bêd¹ mingowane.
+wersji poszczególnych komponentów, nale¿y podj¹æ próbê wrzucenia  czêœæ aplikacji do kontenera z wy³¹czeniem bazy danych. Je¿eli taka próba  w œrodowisku lokalnym nie uda siê, aplikacje pozostan¹ w nim i nie bêd¹ migrowane.
 
 
 
@@ -51,7 +54,7 @@ Przed³u¿enie AD do Azure AD. Synchronizacja hase³ dla wybranej grupy uzytkownikó
 Przygotowanie skryptów tworzenia infrastruktury chmurowej w postac IaaC i trzymanie jest  w repozytorium kodu.
 Pozwoli to na wiêksz¹ kontrolê i zwiêkszy ³atwoœæ zmian przy budowie kolejnych iteracji kodu IaaC.
 Rozpoczêcie testów na aplikacjach, które maj¹ typowe kombinacje elementow oprogramowania. 
-
+Liczbê Publiczych IP nale¿y zminimalizowaæ, pamietaj¹c, ze mamy ich góra 20 per subskrypcja.
 
 
 5. Migracja do chmury œrodowisk produkcyjnych.
