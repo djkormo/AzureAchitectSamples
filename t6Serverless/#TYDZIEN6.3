@@ -43,6 +43,14 @@ public static void Run(TimerInfo myTimer, ICollector<string> outputQueueItem, IL
 
 ##Funkcja 2  Queue -> database
 
+/*
+
+w zmiennej środowiskowej DATABASECONNECTIONSTRING trzymamy konfigurację połączenia
+
+create table message
+
+( TextMessage varchar(max), UpdatedTimeUTC datetime)
+*/
 
 ###run.csx 
 
@@ -84,6 +92,7 @@ public static async  Task Run(string myQueueItem, ILogger log)
 }
 
 ##Funkcja 3
+
 
 
 ###run.csx 
