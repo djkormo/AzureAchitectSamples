@@ -5,3 +5,93 @@ Opis zadania:
 3)	Stwórz trzecią funkcję, która reaguje na request http i dla podanej w parametrze daty z dokładnością do dnia (żeby było prościej) zwraca z bazy Azure SQL wszystkie komunikaty z tego dnia, które tam zostały zapisane, najlepiej w postaci JSON’a
 4)	Stwórz Azure API Management (kiedy będziesz miał już wszystkie inne elementy gotowe) i wystaw na Azure API Management funkcję z zadania nr 3. Dodatkowo, dodaj do wywołania tej funkcji politykę, która nie pozwala jej wywołać częściej w minucie niż trzy razy
 Have fun! To zadanie pokaże Ci (mam nadzieję w prosty sposób, czym są i jak działają funkcje)
+
+
+Testowane z Azure Storage Explorer
+
+##Funkcja 1 - timer -> queue
+
+### run.csx 
+
+using System;
+
+public static void Run(TimerInfo myTimer, ICollector<string> outputQueueItem, ILogger log)
+{
+    log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+    outputQueueItem.Add("Message added from C#  Timer function at: " + DateTime.Now);
+}
+
+###function.json
+
+{
+  "bindings": [
+    {
+      "name": "myTimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 */5 * * * *"
+    },
+    {
+      "type": "queue",
+      "name": "outputQueueItem",
+      "queueName": "queuefortimer",
+      "connection": "AzureWebJobsStorage",
+      "direction": "out"
+    }
+  ]
+}
+
+##Funkcja 2  Queue -> database
+
+
+###run.csx 
+
+using System;
+using System.Threading.Tasks;
+using System.Data.SqlClient;
+
+public static async  Task Run(string myQueueItem, ILogger log)
+        {
+            log.LogInformation($"C# Queue trigger function processed: {myQueueItem}");
+
+            var str = Environment.GetEnvironmentVariable("DATABASECONNECTIONSTRING");
+            using (SqlConnection conn = new SqlConnection(str))
+            {
+                conn.Open();
+                var command = $"Insert into message (TextMessage, UpdatedTimeUTC) values ('{myQueueItem}', GETUTCDATE())";
+
+                using (SqlCommand cmd = new SqlCommand(command, conn))
+                {
+                    var rows = await cmd.ExecuteNonQueryAsync();
+                    log.LogInformation($"{rows} rows were updated");
+                }
+            }
+}
+
+###function.json
+
+{
+  "bindings": [
+    {
+      "name": "myQueueItem",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "queuefortimer",
+      "connection": "AzureWebJobsStorage"
+    }
+  ],
+  "disabled": false
+}
+
+##Funkcja 3
+
+
+###run.csx 
+
+###function.json
+
+
+
+
+
+
