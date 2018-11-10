@@ -3,3 +3,78 @@ Liczymy Koszty :). Umówmy siê. Twój system backupu (nie ma znaczenia jaki) sk³ad
 Ile ³¹cznie wygenerujesz kosztów w ramach tej us³ugi, jeœli rozwa¿ymy pe³ny, 6 letni okres jej dzia³ania.
 
 Rozwa¿ ró¿ne aspekty i ró¿ne mo¿liwoœci us³ug i poka¿ jako algorytm liczenia przyj¹³eœ. 
+
+
+Na podstawie informacji 
+
+https://azure.microsoft.com/en-us/pricing/calculator/
+
+Zak³adam, ze zerowego dnia nie mam danych w kopii zapasowej. Dopiero startujê z uruchomieniem us³ug 
+
+Dane bêdê przechowywaæ w North Europe, Block Blob Storage, General Purpose V2, LRS Redundancy
+
+Koszt dzienny za 1TB  za  Hot Acces Tier $23.04 = cena x
+Koszt dzienny za 1TB  za Cold Acces Tier $21.60 = cena y
+
+ 
+Zak³adamy, ¿e rok ma 365 dni, dwa lata to 730 dni, trzy lata to 1095 dni.
+
+Na pcozatku chcia³em zrobiæ tak:
+
+1.ROK  356 TB = 365 * cena x = 
+2.ROK  760 TB = 760 * cena x =
+3.ROK  760 TB = 1095 * cena x =  
+4.ROK  760 TB = 1095 * cena x =
+5.ROK  760 TB = 1095 * cena x =
+6.ROK  760 TB = 1095 * cena x = 
+
+
+Tak naprawde, rozliczenie jest miesieczne.
+
+
+
+
+
+
+Inne podejscie na razie w wersji zapoznawczej
+
+https://azure.microsoft.com/en-us/blog/azure-blob-storage-lifecycle-management-public-preview/
+
+
+Mozna zalozyc tak:
+
+The following sample policy manages the lifecycle for such data. It applies to block blobs with prefix “foo”:
+
+    Tier blobs to Cool storage 30 days after last modification
+    Tier blobs to Archive storage 90 days after last modification
+    Delete blobs 2,555 days (seven years) after last modification
+    Delete blob snapshots 90 days after snapshot creation
+
+
+	{
+   "version": "0.5",
+   "rules": [
+     {
+       "name": "ruleFoo",
+       "type": "Lifecycle",
+       "definition": {
+         "filters": {
+           "blobTypes": [ "blockBlob" ],
+           "prefixMatch": [ "foo" ]
+         },
+         "actions": {
+           "baseBlob": {
+             "tierToCool": { "daysAfterModificationGreaterThan": 30 },
+             "tierToArchive": { "daysAfterModificationGreaterThan": 90 },
+             "delete": { "daysAfterModificationGreaterThan": 2555 }
+           },
+           "snapshot": {
+             "delete": { "daysAfterCreationGreaterThan": 90 }
+           }
+         }
+       }
+     }
+   ]
+}
+
+
