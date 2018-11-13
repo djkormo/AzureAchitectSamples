@@ -4,6 +4,7 @@ Ile ³¹cznie wygenerujesz kosztów w ramach tej us³ugi, jeœli rozwa¿ymy pe³ny, 6 l
 
 Rozwa¿ ró¿ne aspekty i ró¿ne mo¿liwoœci us³ug i poka¿ jako algorytm liczenia przyj¹³eœ. 
 
+#TYDZIEN7.3
 
 Na podstawie informacji 
 
@@ -19,6 +20,7 @@ Koszt dzienny za 1TB  za Cold Acces Tier $21.60 = cena y
  
 Zak³adamy, ¿e rok ma 365 dni, dwa lata to 730 dni, trzy lata to 1095 dni.
 
+
 Na pcozatku chcia³em zrobiæ tak:
 
 1.ROK  356 TB = 365 * cena x = 
@@ -27,11 +29,37 @@ Na pcozatku chcia³em zrobiæ tak:
 4.ROK  760 TB = 1095 * cena x =
 5.ROK  760 TB = 1095 * cena x =
 6.ROK  760 TB = 1095 * cena x = 
+To jest zle podejscie, gdy¿ zak³ada liczenie miesieczne statycznych kosztów us³ug magazynowych, a takie jest naliczane dziennie i codzinnie naszych danych w kopiach jest wiecej, od trzeciego  roku rotuj¹ cykliczne.
 
 
-Tak naprawde, rozliczenie jest miesieczne.
+Tak naprawde, to musimy zbudowaæ to za pomoc¹ szeregów arytmetycznych. 
+
+Przeskalowanie z miesi¹ca na dzien, zak³adam 30 dni w miesi¹cu. Wiem,¿e to jest uproszczenie.
+
+Warto czasem wróciæ do szko³y 
+http://matmaf.blogspot.com/2011/01/niepokorny-gauss-i-suma-ciagu.html
+
+dla sumy 1+..+n , mamy wzór Gaussa = n*(n+1)/2 
 
 
+1 rok suma 1 +..+365 [TB]  =   (365*366)/2 [TB] =   66795  [TB] 
+2 rok suma 366+..+730 [TB]  =  (1+..+356+366+..+730) [TB] - (1+..+365)  [TB]= (730*731)/2  [TB] - (365*366)/2   [TB] =  266815 [TB] - 66795 [TB] =200020 [TB]
+3 rok suma 731+..+1095 [TB]  = (1+..730+731+..+1095) [TB] - (1+..+730)  [TB] = (1095*1096)/2  [TB]- (730*731)/2  [TB] = 600060 [TB] - 200020 TB = 400040 [TB]
+4 rok suma 731+..+1095 [TB]  = 400040 [TB]
+5 rok suma 731+..+1095 [TB]  = 400040 [TB]
+6 rok suma 731+..+1095 [TB]  = 400040 [TB]
+
+
+Zak³adam miesiêczny koszt 1 [TB] Hot Acces Tier $23.04
+
+1 rok =  66795  [TB]  * 23.04 [$/TB/month] * 1/30 [month]  =  51 298.56  $
+2 rok = 200020  [TB]  * 23.04 [$/TB/month] * 1/30 [month] = 153 615.36 $
+3 rok = 400040  [TB]  * 23.04 [$/TB/month] * 1/30 [month] = 307 230.72 $ 
+4 rok = 400040  [TB]  * 23.04 [$/TB/month] * 1/30 [month] = 307 230.72 $ 
+5 rok = 400040  [TB]  * 23.04 [$/TB/month] * 1/30 [month] = 307 230.72 $ 
+6 rok = 400040  [TB]  * 23.04 [$/TB/month] * 1/30 [month] = 307 230.72 $ 
+
+razem = 1 433 836.80 $
 
 
 
@@ -41,7 +69,6 @@ Inne podejscie na razie w wersji zapoznawczej
 https://azure.microsoft.com/en-us/blog/azure-blob-storage-lifecycle-management-public-preview/
 
 
-Mozna zalozyc tak:
 
 The following sample policy manages the lifecycle for such data. It applies to block blobs with prefix “foo”:
 
@@ -51,7 +78,7 @@ The following sample policy manages the lifecycle for such data. It applies to b
     Delete blob snapshots 90 days after snapshot creation
 
 
-	{
+{
    "version": "0.5",
    "rules": [
      {
