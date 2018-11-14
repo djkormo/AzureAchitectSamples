@@ -1,16 +1,58 @@
 1.	Dla ka¿dego typu Storage, którego siê nauczy³eœ w czasie kursu (min. 4 typy) dobierz dwa dobre i jedno z³e zastosowanie. Chcia³bym byœ zweryfikowa³ ró¿ne mo¿liwoœci sk³adowania danych w Azure i opowiedzia³, kiedy i do czego te mo¿liwoœci mo¿esz wykorzystaæ. 
 
 
-# Azure Storage Blobs
+# Azure Storage Blobs (Block)
 
+Tu trzyma³bym  archiwum dokumentów firmowych zabezpieczonych od strony Shared Access Signature z odpowiedniki politykami.
+Dodatkowo nale¿y raz w miesi¹cu wymieniaæ oba klucze na koncie magazynowym, utrzymywaæ je w KeyValucie i odswie¿aæ SAS.
+
+Dokumenty , pliki multimedialne, prezentacje, pliki z muzyk¹, pliki z filmami.
+Pliki bêd¹ uk³adane w odpowiednich kontenerach zgodnie ze struktur¹ organizacyjn¹ i  rokiem-miesiacem utworzenia. 
+Zak³adam, ¿e dokumenty nie bêd¹ zmieniane.
+
+Nie nadaje siê do trzymania logów .
+
+
+# Azure Storage Blobs (Page)
+Tu trzyma³bym  kopie plików maszyn wirtualnych (VHD), które s¹ podstaw¹ budowy customowych maszyn virtualnych (VM) i  skalowanych zbiorów (VMSS).
+Wymusi³bym politykê korporacyjn¹, która nie pozwala na deploy maszyn z innych obrazów. Ka¿dy obraz VM z Azure Marketplace by³by weryfikowany na podatnoœæi i certyfikowany przez odpowiedni¹ komórkê bezpieczeñstwa 
+
+Obrazy takie by³y by genalizowane i dodatkow pozbawianie wszelkich loginów (deprovisioning)  
+
+Tu nie warto trzymaæ plików multimedialnych, gdy¿ dostêp do nich nie jest optymalny  na poziomie losowej strony, tak jak to jest z plikami systemu operacyjnego pod VM.
+
+Nie nadaje siê do trzymania logów, takowe umieœci³bym jako Append Blobs.
 
 # Azure Storage Queue
 
+Prosty system zg³aszania komunikatów organizacyjnych personalizowanych do niewielkij liczby osób (top management), które szybko siê dezaktualizuj¹.
+Zalet¹ takiego rozwi¹zanie jest natywne wsparcie odczytu i procesowania komunikatu, tak by³ znika³ z kolejki (GetMessage) po potwierdzeniu odbioru (DeleteMessage).
 
+Nale¿y pamietaæ o ograniczeniach, czyli rozmiarze 64KB i maksymalnym czasie utrzymywanie siê komunikatu, który wynosi 7 dni.
+
+Nie nadaje siê jako system przechowywania wszelkich zleceñ historycznych w systemie ticketowym.
+
+
+Nie nadaje siê do trzymania trwa³ych danych , np. logów systemowych.
 
 # Azure Storage Files
 
+Zastosowanie do aplikacji, które wykorzystuj¹ protokó³ SMB, w szczególnoœci mo¿na umieœciæ pliki wykonawalne aplikacji desktopowych. Znam takie systemy, gdzie pliki wykonywalne s¹ umieszczony na serwerze plikowym. Pilnujemy, aby ¿ród³o kodu pochodzi³o z pewnego miejsca.
+Zalet¹ jest mo¿liwoœæ wprowadzenia dok³adnych  regu³ SAS i polityk dostêpu, tak by kontrolowaæ kto i kiedy mo¿e uruchamiaæ takie aplikacje.
+
+Nie nadaje siê do wydajnych rozwi¹zañ, gdzie musimy mieæ du¿o odczytów i du¿o zapisów. 
 
 
 # Azure Storage Table
+
+Prosta baza danych NO-SQL, która umo¿liwia nam przechowywanie  wielu dokumentów w postaci JSON.
+
+Prostym zastosowaniem móg³by byæ prosty system monitorowania wykorzystania wewnêtrzych wyszukiwarek intranetowych, tak by zapisywaæ formê zapytania, czas odpowiedzi, liczbê znale¿ionych obiektów....Postaæ zapytania z za³o¿enia bêdzie mieæ dowoln¹ strukturê.
+
+
+Nie nadaje siê do utrzymywanie danych o sta³ym schemacie, tu lepsze bêd¹ relacyjne bazy danych, czyli to, co trochê znam i lubiê.
+
+
+
+
 
