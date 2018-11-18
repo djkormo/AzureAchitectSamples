@@ -1,2 +1,21 @@
 #TYDZIEN5.2  Czego nie migrowaæ do PaaS?
 Jeœli zadanie pierwsze przysz³o nie ³atwo, to mo¿e wybierz 3 systemy, których nigdy byœ nie migrowa³ do poznanych us³ug? Podaj 2 przyk³ady i min. 2 powody. 
+
+
+Nie zmigrowa³bym aplikacji,które wykorzystuj¹
+
+a) stary system operacyjny (Windows Server 2003)
+b) stary serwer aplikacji (archaiczny JBoss)
+c) star¹ wersjê jêzyka programowania (np. Java 1.4) 
+d) stary silnik bazy danych (np. SQL server 2000)
+
+Szczególnie jest to wa¿ne, gdy producent nie zapewni³ pe³nej zgodnoœci wstecz kodu uruchamianego na nowych wersjach.
+Tak by³o niestety m.in. przy przejœciu miêdzy wersjami SQL SERVER 2000 -> SER SERVER 2005.
+
+
+1. Aplikacja desktopowa napisana w archaicznej technologii klient-serwer .NET w wersji 3.5, Baza danych MS-SQL 2000.
+2. Aplikacja konsolowa napisana w Java 1.4, która jest uruchomiona na Windows Server 2003 i komunikuje siê z baza danych MS-SQL 2005
+3. Aplikacja klasy enterprise, wykorzystuj¹ca komunikacjê miêdzy wieloma serwerami SQL za pomoc¹ Service Brokera. 
+
+
+

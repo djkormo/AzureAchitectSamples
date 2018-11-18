@@ -1,2 +1,42 @@
 #TYDZIEN5.1  Migracja do us³ug PaaS
 Na bazie doœwiadczeñ i zadania poprzedniego opisz min. 3 ró¿ne systemy, które byœ zmigrowa³ do us³ug, które pozna³eœ. Tym razem, poniewa¿ s¹ tylko 3 systemy, to poproszê o min. 3 kryteria per system i uzasadnienie, kiedy to ma sens, a kiedy nie. Mo¿esz wybraæ dowolny system ? nie narzucam. Chcê zobaczyæ, jak myœlisz, planujesz i wybierasz us³ugi pod konkretne rozwi¹zania.
+
+
+
+1. Sklep internetowy zbudowany w architekturze trójwarstwowej.
+
+a) frontend  napisany w Java 1.8 + SpringBoot 
+b) server aplikacji (logika biznesowa) w wersji obs³ugiwanej przez WebApps.
+c) baza danych MS SQL.
+
+Do przepisania jako WebApps, konfiguracja pol¹czenia z baz¹ za pomoc¹ konfiguracji pobieranej z KeyVaulta. 
+Wykorzystanie autoskalowania na podstawie metryk typu obci¹¿enie CPU, ruch wejœciowy/wyjœciowy sieci.
+Do testowania wdro¿enia nowych wersji wykorzystane bêd¹ sloty.
+
+
+2. System ticketowy obs³uguj¹cy zg³oszenia u¿ytkowników systemów informatycznych. Podstawa pracy dla I i II linii wsparcia.  
+
+a) napisany w PHP 5
+b) baza danych postgresql lub mysql.
+
+Do przepisanie w us³ugê Web App for Containers.
+Kod aplikacji zostanie umieszczony w Azure Container Registry.
+Do przepisania jako WebApps, konfiguracja pol¹czenia z baz¹ za pomoc¹ konfiguracji pobieranej z KeyVaulta. 
+Nie ma potrzeby wykorzystywania  autoskalowania.
+
+
+3. Aplikacja do monitoringu i kontroli uprawnienñ klienta koñcowego w sieciach salonów POS.
+a) napisana w Java 1.5
+b) server aplikacji (logika biznesowa) w wersji obs³ugiwanej przez WebApps.
+c) baza danych mongoDB.
+
+
+Przeznaczona do uruchomienia w Azure Kubernetes Services (AKS)
+
+Kod aplikacji umiesczony w kontenerze w ACR (Azure Container Registry).
+Zamiast mongoDB zostanie wykorzystana baza CosmosDB w podstawowej wersji.
+AKS pobiera kod z ACR. 
+
+
+
+
