@@ -1,0 +1,10 @@
+#9.2 A jeśli planowanie to nie twój żywioł to zrób proszę prostą architekturę i uruchom ją w Azure (jak masz zapał, to wykorzystaj do tego skrypty ARM).
+Co ma powstać:
+1)	Sieć z podziałem na 3 subnety
+2)	W subnecie pierwszym niech stanie Application Gateway, w drugim dwa serwery z dowolnym serwerem aplikacyjnym w Availability Set, w 3 dowolna baza danych
+3)	Zrób odpowiednią segmentacje ruchu pomiędzy sieciami za pomocą NSG oraz ASG, tak by tylko ruch, który powinien wchodził i wychodził z danych segmenetów sieci
+4)	Przed całym rozwiązaniem postaw Azure Traffic Managera i skonfiguruj go w dowolnej opcji i sprawdź jak działa
+5)	Na koniec, ustaw logowanie wszystkich NSG do Azure Traffic Analytics i zobacz po 24h jaki ruch tam został zarejestrowany
+6)	Na koniec, sprawdź czy Twoje NSG i ASG poprawnie działają za pomocą narzędzie Network Watcher i dostępnych tam opcji. 
+Liczę na dobre zrzuty ekranu i opis rozwiązania.  
+
