@@ -8,3 +8,51 @@ Co ma powstać:
 6)	Na koniec, sprawdź czy Twoje NSG i ASG poprawnie działają za pomocą narzędzie Network Watcher i dostępnych tam opcji. 
 Liczę na dobre zrzuty ekranu i opis rozwiązania.  
 
+
+
+Propozycja
+
+VNEN1
+
+SUBNET1 Application Gateway z publicznym IP
+
+
+
+SUBNET2 WebApp for Containers (linux version)
+
+Tu zostanie uruchomiony wordpress z obrazu
+
+
+https://github.com/bartr/azurewordpress
+Obraz z dockerHuba
+bartr/apache-wordpress
+
+Wymaga konfiguracji czterech zmiennych
+
+Konfiguracja  zmiennych środowiskowych
+fragment wp-config.php :
+define('DB_NAME', getenv('WORDPRESS_DB_NAME')); 
+define('DB_USER', getenv('WORDPRESS_DB_USER')); 
+define('DB_PASSWORD', getenv('WORDPRESS_DB_PASSWORD')); 
+define('DB_HOST', getenv('WORDPRESS_DB_HOST'));
+
+
+
+SUBNET3
+
+Azure Database for MySQL
+
+
+
+
+Literatura
+
+https://kvaes.wordpress.com/2018/06/08/taking-a-look-at-azure-service-endpoints/
+
+
+
+
+
+
+
+
