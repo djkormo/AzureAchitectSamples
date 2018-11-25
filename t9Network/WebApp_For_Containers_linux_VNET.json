@@ -1,0 +1,83 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "type": "String"
+        },
+        "dockerRegistryUrl": {
+            "type": "String"
+        },
+        "hostingPlanName": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "hostingEnvironment": {
+            "type": "String"
+        },
+        "serverFarmResourceGroup": {
+            "type": "String"
+        },
+        "subscriptionId": {
+            "type": "String"
+        },
+		"WORDPRESS_DB_NAME":
+		{
+		  "type": "String"
+        },
+		 "WORDPRESS_DB_USER":
+		{
+		  "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "name": "[parameters('name')]",
+            "apiVersion": "2016-03-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "name": "[parameters('name')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                            "value": "false"
+                        },
+                        {
+                            "name": "DOCKER_REGISTRY_SERVER_URL",
+                            "value": "[parameters('dockerRegistryUrl')]"
+                        },
+						
+						{
+                            "name": "WORDPRESS_DB_HOST",
+                            "value": ""
+                        },
+						
+						 {
+                            "name": "WORDPRESS_DB_NAME",
+                            "value": "[parameters('WORDPRESS_DB_NAME')]"
+                        },
+						
+						 {
+                            "name": "WORDPRESS_DB_USER",
+                            "value": "[parameters('WORDPRESS_DB_USER')]"
+                        },
+						
+						 {
+                            "name": "WORDPRESS_DB_PASSWORD",
+                            "value": ""
+                        }
+		
+                    ],
+                    "appCommandLine": "",
+                    "linuxFxVersion": "DOCKER|bartr/apache-wordpress"
+                },
+                "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                "hostingEnvironment": "[parameters('hostingEnvironment')]"
+            }
+        }
+    ]
+}
