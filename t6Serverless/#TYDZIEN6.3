@@ -9,7 +9,7 @@ Have fun! To zadanie pokaże Ci (mam nadzieję w prosty sposób, czym są i jak 
 
 Testowane z Azure Storage Explorer
 
-##Funkcja 1 - timer -> queue
+##Funkcja 1 - timer -> queue (Timer2Queue)
 
 ### run.csx 
 
@@ -41,15 +41,17 @@ public static void Run(TimerInfo myTimer, ICollector<string> outputQueueItem, IL
   ]
 }
 
-##Funkcja 2  Queue -> database
+##Funkcja 2  Queue -> database (Queue2Database)
 
 /*
 
 w zmiennej środowiskowej DATABASECONNECTIONSTRING trzymamy konfigurację połączenia
 
+
+
 create table message
 
-( TextMessage varchar(max), UpdatedTimeUTC datetime)
+( TextMessage varchar(max), UpdatedDateTime datetime)
 */
 
 ###run.csx 
@@ -66,7 +68,7 @@ public static async  Task Run(string myQueueItem, ILogger log)
             using (SqlConnection conn = new SqlConnection(str))
             {
                 conn.Open();
-                var command = $"Insert into message (TextMessage, UpdatedTimeUTC) values ('{myQueueItem}', GETUTCDATE())";
+                var command = $"Insert into message (TextMessage, UpdatedDateTime) values ('{myQueueItem}', GetDate())";
 
                 using (SqlCommand cmd = new SqlCommand(command, conn))
                 {
@@ -91,15 +93,77 @@ public static async  Task Run(string myQueueItem, ILogger log)
   "disabled": false
 }
 
-##Funkcja 3
+##Funkcja 3  httpd -> Database  (HttpTrigger2Database)
 
 
 
 ###run.csx 
 
+using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
+using System.Data.SqlClient;
+
+
+public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
+{
+    log.LogInformation("C# HTTP trigger function processed a request.");
+   // var jsonResult = new StringBuilder();
+    string date = req.Query["date"];
+
+    string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+    dynamic data = JsonConvert.DeserializeObject(requestBody);
+    date = date ?? data?.date;
+
+ var str = Environment.GetEnvironmentVariable("DATABASECONNECTIONSTRING");
+            using (SqlConnection conn = new SqlConnection(str))
+            {
+                conn.Open();
+                var command = $"select * from message where convert(varchar(10),UpdatedDatetime)='{date}' for json path;";
+
+                using (SqlCommand cmd = new SqlCommand(command, conn))
+                {
+                    var rows = await cmd.ExecuteNonQueryAsync();
+                    log.LogInformation(command);
+                    log.LogInformation($"{rows} rows were updated");
+                }
+            }
+
+
+    return date != null
+        ? (ActionResult)new OkObjectResult($"Hello, {date}")
+        : new BadRequestObjectResult("Please pass a date on the query string or in the request body");
+
+
+}
+
+
+
 ###function.json
 
 
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "name": "req",
+      "type": "httpTrigger",
+      "direction": "in",
+      "methods": [
+        "get",
+        "post"
+      ]
+    },
+    {
+      "name": "$return",
+      "type": "http",
+      "direction": "out"
+    }
+  ]
+}
+
+Przyklad wywołania w wersji anonymous
+
+https://djkormo2018szkola.azurewebsites.net/api/HttpTrigger2Database?date=2018-11-26
 
 
 

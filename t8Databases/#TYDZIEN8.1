@@ -5,3 +5,36 @@ Chcia³bym byæ na powa¿nie przemyœla³, jak i kiedy warto u¿yæ Table Storage, dla 
 Zwróæ uwagê na cenê, ka¿dej z wybieranych us³ug. Mo¿e siê okazaæ, ¿e mo¿e zrobiæ coœ lepiej, taniej, szybciej za pomoc¹ innej us³ugi – czekam na takie propozycje. 
 
 Dobór us³ug, z perspektywy kosztów to wa¿ny element w pracy architekta dlatego musisz nabraæ tutaj wprawy.
+
+
+ 1. Queue storage
+Przechowywanie danych o sesji u¿ytkownika. Wyzwalane zapisem z funkcji.
+
+2. Blob Storaga
+
+Tutaj bêd¹ mog³y byæ ladowane pliki zawieraj¹ce produkty , które chcemy promowaæ.
+
+3. Azure SQL Database
+Baza zamówionych towarów i stanów  na etapie realizacji zamówienia.
+
+Dane o promowanych towarach zasilanie z plików p³askich ladowanych do Blob Storage.
+
+
+4. Azure DataWarehouse
+
+Pobieranie z bazy relacyjnej i plików p³askich danych do dodatkowych analiz z wykorzystaniem Polybase.
+
+
+5. Azure Search
+
+Na podstawie bazy danych o promowanych produktach zostanie dodany indeks do budowy szybkiej wyszukiwarki.
+
+
+6. HDInsights
+
+Analiza wielkich iloœci danych preferencji naszych klientow, analiza stron, z których korzysta³ czasów przebywania, klikniêcia w ka¿dy obiekt dostêpny na tronie www.
+Budowa na klastrze Spark systemów predykcyjnych i rekomendacyjnych.
+
+7. Data Factory
+
+Przenoszenie danych z plików p³askich produktow promowanych do bazy danych z wykorzystaniem pakietów SSIS.
