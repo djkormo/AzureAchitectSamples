@@ -93,49 +93,66 @@ public static async  Task Run(string myQueueItem, ILogger log)
   "disabled": false
 }
 
-##Funkcja 3  httpd -> Database  (HttpTrigger2Database)
+##Funkcja 3  httpd -> Database  (HttpTriggerFromDatabase)
 
 
 
 ###run.csx 
 
-using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Data.SqlClient;
+using System.Net.Http;
+using System.Web;
 
-
-public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
+public static HttpResponseMessage Run(HttpRequest req, ILogger log)
 {
-    log.LogInformation("C# HTTP trigger function processed a request.");
-   // var jsonResult = new StringBuilder();
     string date = req.Query["date"];
 
-    string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-    dynamic data = JsonConvert.DeserializeObject(requestBody);
-    date = date ?? data?.date;
+    if (String.IsNullOrEmpty(date)) 
+    {
+        return new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest);
+    }
 
- var str = Environment.GetEnvironmentVariable("DATABASECONNECTIONSTRING");
-            using (SqlConnection conn = new SqlConnection(str))
+    var json = new StringBuilder();
+    var cs = Environment.GetEnvironmentVariable("DATABASECONNECTIONSTRING");
+    var sql = $"select TextMessage from message where convert(varchar(10),UpdatedDatetime,120)='{date}' for json path;";
+        
+    using (SqlConnection conn = new SqlConnection(cs))
+    {
+        conn.Open();
+
+        log.LogInformation("connected to DB");
+        log.LogInformation("Sql: "+sql);
+
+        using (SqlCommand cmd = new SqlCommand(sql, conn))
+        {
+            SqlDataReader r = cmd.ExecuteReader();
+
+            if (!r.HasRows)
             {
-                conn.Open();
-                var command = $"select * from message where convert(varchar(10),UpdatedDatetime)='{date}' for json path;";
-
-                using (SqlCommand cmd = new SqlCommand(command, conn))
+                json.Append("[]");
+            }
+            else
+            {
+                while (r.Read())
                 {
-                    var rows = await cmd.ExecuteNonQueryAsync();
-                    log.LogInformation(command);
-                    log.LogInformation($"{rows} rows were updated");
+                    json.Append(r.GetString(0));
                 }
             }
+        }
+    }
 
-
-    return date != null
-        ? (ActionResult)new OkObjectResult($"Hello, {date}")
-        : new BadRequestObjectResult("Please pass a date on the query string or in the request body");
-
-
+    var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+    response.Content = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
+    
+    return response;
 }
-
 
 
 ###function.json
@@ -144,26 +161,28 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
 {
   "bindings": [
     {
-      "authLevel": "function",
-      "name": "req",
       "type": "httpTrigger",
-      "direction": "in",
-      "methods": [
-        "get",
-        "post"
-      ]
-    },
-    {
-      "name": "$return",
-      "type": "http",
-      "direction": "out"
+      "name": "req",
+      "authLevel": "anonymous",
+      "direction": "in"
     }
   ]
 }
-
 Przyklad wywołania w wersji anonymous
 
-https://djkormo2018szkola.azurewebsites.net/api/HttpTrigger2Database?date=2018-11-26
+
+https://djkormo2018szkola.azurewebsites.net/api/HttpTriggerFromDataBase?date=2018-11-26
+
+Wyjściowy JSON’a
+
+
+[{"TextMessage":"sample queue data","UpdatedDateTime":"2018-11-26T22:00:30.880"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 9:40:04 PM","UpdatedDateTime":"2018-11-26T22:06:39.240"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 9:45:00 PM","UpdatedDateTime":"2018-11-26T22:06:39.317"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 9:50:00 PM","UpdatedDateTime":"2018-11-26T22:06:39.440"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:00:00 PM","UpdatedDateTime":"2018-11-26T22:06:39.457"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 9:55:00 PM","UpdatedDateTime":"2018-11-26T22:06:40.067"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:09:59 PM","UpdatedDateTime":"2018-11-26T22:10:02.677"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:50:00 PM","UpdatedDateTime":"2018-11-26T22:50:01.030"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:55:00 PM","UpdatedDateTime":"2018-11-26T22:55:02.980"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:59:59 PM","UpdatedDateTime":"2018-11-26T23:00:00.450"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:10:00 PM","UpdatedDateTime":"2018-11-26T23:10:01.573"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:14:59 PM","UpdatedDateTime":"2018-11-26T23:15:01.230"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:20:00 PM","UpdatedDateTime":"2018-11-26T23:20:04.543"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:25:02 PM","UpdatedDateTime":"2018-11-26T23:25:06.120"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:30:00 PM","UpdatedDateTime":"2018-11-26T23:30:01.887"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:35:00 PM","UpdatedDateTime":"2018-11-26T23:35:01.277"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:55:00 PM","UpdatedDateTime":"2018-11-26T23:55:03.847"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:05:00 PM","UpdatedDateTime":"2018-11-26T22:06:39.457"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:15:00 PM","UpdatedDateTime":"2018-11-26T22:15:01.487"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:20:00 PM","UpdatedDateTime":"2018-11-26T22:20:03.220"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:25:00 PM","UpdatedDateTime":"2018-11-26T22:25:02.080"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:30:00 PM","UpdatedDateTime":"2018-11-26T22:30:01.093"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:35:00 PM","UpdatedDateTime":"2018-11-26T22:35:02.123"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:40:00 PM","UpdatedDateTime":"2018-11-26T22:40:02.970"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 10:45:00 PM","UpdatedDateTime":"2018-11-26T22:45:02.967"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:05:00 PM","UpdatedDateTime":"2018-11-26T23:05:04.010"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:40:00 PM","UpdatedDateTime":"2018-11-26T23:40:02.850"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:44:59 PM","UpdatedDateTime":"2018-11-26T23:45:02.617"},{"TextMessage":"Message added from C#  Timer function at: 11\/26\/2018 11:50:00 PM","UpdatedDateTime":"2018-11-26T23:50:00.100"}]
+
+Obsługa API management na podstawie
+
+https://www.brianbunke.com/blog/2018/03/02/azure-functions-api-management/
+
+
 
 
 
