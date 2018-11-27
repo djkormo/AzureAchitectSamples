@@ -13,6 +13,170 @@ Najpierw utworzy³em funkcjê która jest wyzwalana czasowo i zapisuje rekordy do C
 Przyk³ad takiej funkcji
 https://docs.microsoft.com/en-us/azure/azure-functions/functions-integrate-store-unstructured-data-cosmosdb?tabs=csharp
 
+1. Funkcja httpd trigger -> CosmosDB (HttpTrigger2CosmosDB)
+
+podczas testowania nalezy dodaæ
+
+trzy parametry
+name,task,summary
+
+
+run.csx
+
+#r "Newtonsoft.Json"
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+
+public static IActionResult Run(HttpRequest req, out object outputDocument, ILogger log)
+{
+    string name = req.Query["name"];
+    string task = req.Query["task"];
+    string summary = req.Query["summary"];
+
+
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var stringChars = new char[20];
+    var random = new Random();
+
+    for (int i = 0; i < stringChars.Length; i++)
+    {
+        stringChars[i] = chars[random.Next(chars.Length)];
+    }
+
+    var finalString = new String(stringChars);
+
+    name=name+"_"+finalString;
+
+    
+    for (int i = 0; i < stringChars.Length; i++)
+    {
+        stringChars[i] = chars[random.Next(chars.Length)];
+    }
+
+    task=task+'_'+finalString;
+    
+    for (int i = 0; i < stringChars.Length; i++)
+    {
+        stringChars[i] = chars[random.Next(chars.Length)];
+    }
+    summary=summary+"_"+finalString;
+
+
+    // We need both name and task parameters.
+    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(task))
+    {
+        outputDocument = new
+        {
+            name,
+            summary,
+            task
+        };
+
+        return (ActionResult)new OkResult();
+    }
+    else
+    {
+        outputDocument = null;
+        return (ActionResult)new BadRequestResult();
+    }
+}
+
+
+function.json
+
+
+  "bindings": [
+    {
+      "authLevel": "function",
+      "name": "req",
+      "type": "httpTrigger",
+      "direction": "in",
+      "methods": [
+        "get",
+        "post"
+      ]
+    },
+    {
+      "name": "$return",
+      "type": "http",
+      "direction": "out"
+    },
+    {
+      "type": "cosmosDB",
+      "name": "outputDocument",
+      "databaseName": "djkormoCosmosDB",
+      "collectionName": "CollectionWeek8",
+      "createIfNotExists": false,
+      "connectionStringSetting": "djkormo_DOCUMENTDB",
+      "direction": "out",
+      "collectionThroughput": 400
+    }
+  ]
+}
+
+Przydaje siê Azure Storage Explorer
+
+
+Przyk³ad tak wygenerowanego dokumentu
+
+
+{
+    "name": "Name1_lbTsi19R1CAHBgWXS2mG",
+    "summary": "Summary_lbTsi19R1CAHBgWXS2mG",
+    "task": "Task1_lbTsi19R1CAHBgWXS2mG",
+    "id": "416deab5-57a5-4d00-bf6c-9713b26330a8",
+    "_rid": "7nh2AJNDzQsFAAAAAAAAAA==",
+    "_self": "dbs/7nh2AA==/colls/7nh2AJNDzQs=/docs/7nh2AJNDzQsFAAAAAAAAAA==/",
+    "_etag": "\"0c007fd0-0000-0000-0000-5bfdaa6c0000\"",
+    "_attachments": "attachments/",
+    "_ts": 1543350892
+}
+
+Na podstawie
+
+https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-functions
+
+2. Funkcja   trigger CosmosDB (CosmosTrigger)
+
+
+run.csx
+
+
+#r "Microsoft.Azure.DocumentDB.Core"
+using System;
+using System.Collections.Generic;
+using Microsoft.Azure.Documents;
+
+public static void Run(IReadOnlyList<Document> input, ILogger log)
+{
+    if (input != null && input.Count > 0)
+    {
+        log.LogInformation("Documents modified " + input.Count);
+        log.LogInformation("First document Id " + input[0].Id);
+    }
+}
 
 
 
+function.json
+
+
+{
+  "bindings": [
+    {
+      "type": "cosmosDBTrigger",
+      "name": "input",
+      "direction": "in",
+      "connectionStringSetting": "djkormo_DOCUMENTDB",
+      "databaseName": "djkormoCosmosDB",
+      "collectionName": "CollectionWeek8",
+      "leaseCollectionName": "leases",
+      "createLeaseCollectionIfNotExists": true
+    }
+  ],
+  "disabled": false
+}
+
+ 
