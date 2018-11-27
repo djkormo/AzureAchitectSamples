@@ -180,8 +180,29 @@ Wyjściowy JSON’a
 
 Obsługa API management na podstawie
 
+
 https://www.brianbunke.com/blog/2018/03/02/azure-functions-api-management/
 
+https://kvaes.wordpress.com/2017/09/01/putting-azure-api-management-in-front-of-an-azure-function-api/
+
+Dodana polityka:
+
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service id="apim-generated-policy" backend-id="djkormo2018szkola" />
+        <rate-limit-by-key calls="3" renewal-period="60" counter-key="@(context.Subscription.Key)" />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
 
 
 
