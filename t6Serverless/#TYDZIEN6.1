@@ -1,1 +1,30 @@
 6.1	Wybierz 3 moduły / kawałki systemu (dowolne) może być np. System rezerwacji produktów u poddostawców, system płatności, system rezerwacji produktów w magazynie, system przetwarzania zdjęć produktów, w których wykorzystałbyś rozwiązania typu Azure Web App, Azure API Management oraz Azure Functions. Opisz ten kawałek rozwiązania (rysunki mile widziane) i min 3 punkty przy każdym wybranym module / kawałku systemu, dlaczego to jest dobry wybór.
+
+
+
+Azure Functions:
+
+
+Przetwarzanie zdjęć produktów, połączone z usługami kognitywnymi opisującymi i tagującymi na podstawie zawartości obrazu. 
+Budowany jest od razu odcisk takiego obrazu.
+Usługa jest skalowalna i opłacalna kosztowo, ze względu na naliczanie zdarzeniowe jedynie za liczbę i czas wywołania. 
+Przetworzone informacje ladują  dodatkowo w bazie dokumentowej Azure Table Storage.
+Możliwe wykorzystanie wielu  języków.
+
+Azure Web App:
+
+Wystawiony na www frontend aplikacji do systemu rezerwacji magazynu i systemu płatności.
+Możliwość łątwego wdrażania przy wykorzystaniu slotów. 
+Możliwość latwego skalowana i autoskalowania na podstawie dostępnych metryk kontrolujących utylizacjęprocesowa, pamieci, ruchu sieciowego.
+Szeroki zakres języków programowania.
+
+
+Azure API Management:
+
+Połączonie systemu frontend z backendem opartym na funkcjach.
+Usługa umożliwia kontrolę dostępu, wprowadza reguły  czasowe, limity wywołan, limity wykorzystania na podstawie adresu IP wywołującego. itp...
+Umożliwia również filtrowanie dostępu do API dla zewnętrznych firm, np. zasilających nasze wspólne słowniki produktowe.
+Jest odpowiednikiem wewnętrznej szyny itegracyjnej, stanowiąc centralne miejse łączące różne usługi
+
+
+Ciekawe jest to, że każda z powyższych składowych może być pisane niezależnie przez różne zespoły i przy wykorzystaniu różnych języków programownia.
