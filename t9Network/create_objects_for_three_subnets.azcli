@@ -1,0 +1,84 @@
+alias az='az.cmd'
+
+az login
+
+# utworzenie RG
+
+az configure --defaults location=northeurope
+
+az group create --name rg-tydzien-09-final --location northeurope
+
+
+# utworzenie VNET
+
+
+az network vnet create -g rg-tydzien-09-final -n VNET-WP-09 --address-prefix 10.0.0.0/16 \
+                            --subnet-name SUBNET-FP --subnet-prefix 10.0.0.0/24
+
+az network vnet subnet create -g rg-tydzien-09-final \
+                --vnet-name VNET-WP-09 -n SUBNET-WK \
+                --address-prefix 10.0.1.0/24 
+
+az network vnet subnet create -g rg-tydzien-09-final \
+                --vnet-name VNET-WP-09 -n SUBNET-DB \
+                    --address-prefix 10.0.2.0/24                            
+
+#  utworzenie zbioru wysokiej dostepnosci dla VM
+az vm availability-set create \
+    --resource-group rg-tydzien-09-final \
+    --name myAvailabilitySet \
+    --platform-fault-domain-count 2 \
+    --platform-update-domain-count 2
+	
+# utworzenie dwoch VM z ubuntu
+for i in `seq 1 2`; do
+   az vm create \
+     --resource-group rg-tydzien-09-final \
+     --name myUbuntuWP$i \
+     --availability-set myAvailabilitySet \
+     --size Standard_A1_v2  \
+     --vnet-name VNET-WP-09 \
+     --subnet SUBNET-WK \
+     --image UbuntuLTS \
+     --admin-username azureuser \
+	 --admin-password Pa$$word2018..
+done
+	
+## instalacja mazy danych mysql 
+
+
+az mysql server create -l northeurope -g rg-tydzien-09-final -n mysqldjkormo2018  \
+    --admin-user mysqladmin --admin-password Pa$$word2018.. --sku-name B_Gen5_2 \
+    --ssl-enforcement Disabled \ 
+    --storage-size 51200 --tags "szkola=week9" --version 5.7
+
+
+
+# dodanie reguły dla VNET
+az mysql server vnet-rule create -g rg-tydzien-09-final \
+    -s mysqldjkormo2018 -n vnetMysqlRuleName \
+    --subnet SUBNET-DB --vnet-name VNET-WP-09 \
+    --ignore-missing-endpoint
+
+az mysql server vnet-rule create --help
+
+
+
+az network application-gateway create -g rg-tydzien-09-final -n WpDjkormoAppGateway --capacity 2 --sku Standard_Small \
+                            --vnet-name VNET-WP-09 --subnet SUBNET-FP --http-settings-cookie-based-affinity Disabled \
+                            --public-ip-address MyAppGatewayPublicIp
+
+
+# az network application-gateway create --help
+
+## Instalacja Wordpressa na VM
+#https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/wordpress-single-vm-ubuntu/install_wordpress.sh
+for i in `seq 1 2`; do
+az vm extension set -g rg-tydzien-09-final --vm-name myUbuntuWP$i \
+    --name customScript \
+    --publisher Microsoft.Azure.Extensions \
+    --settings @C:/developing/Azure/535/AzureAchitectSamples/t9Network/wp-config.json --verbose
+
+done
+
+

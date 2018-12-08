@@ -53,8 +53,63 @@ https://kvaes.wordpress.com/2018/06/08/taking-a-look-at-azure-service-endpoints/
 
 
 
+az group create --name rg-tydzien-09-final --location eastus
+
+az vm availability-set create \
+    --resource-group rg-tydzien-09-final \
+    --name myAvailabilitySet \
+    --platform-fault-domain-count 2 \
+    --platform-update-domain-count 2
+	
+
+for i in `seq 1 2`; do
+   az vm create \
+     --resource-group rg-tydzien-09-final \
+     --name myUbuntuWP$i \
+     --availability-set myAvailabilitySet \
+     --size Standard_A1_v2  \
+     --vnet-name VNET-WP-09 \
+     --subnet SUBNET-WK \
+     --image UbuntuLTS \
+     --admin-username azureuser \
+	 --admin-password Pa$$word2018..
+done
+	
+
+Installing WP on ubuntu 6.04 LTS
+
+https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/wordpress-single-vm-ubuntu/install_wordpress.sh
+
+#!/bin/bash
+
+apt-get -y update
+
+logger "Installing WordPress"
+
+# Set up a silent install of MySQL
+dbpass=$1
+
+export DEBIAN_FRONTEND=noninteractive
+echo mysql-server-5.6 mysql-server/root_password password $dbpass | debconf-set-selections
+echo mysql-server-5.6 mysql-server/root_password_again password $dbpass | debconf-set-selections
+
+# Install the LAMP stack and WordPress
+apt-get -y install apache2 mysql-server php5 php5-mysql wordpress
+
+# Setup WordPress
+gzip -d /usr/share/doc/wordpress/examples/setup-mysql.gz
+bash /usr/share/doc/wordpress/examples/setup-mysql -n wordpress localhost
+
+ln -s /usr/share/wordpress /var/www/html/wordpress
+mv /etc/wordpress/config-localhost.php /etc/wordpress/config-default.php
+
+# Restart Apache
+apachectl restart
+
+logger "Done installing WordPress; open /wordpress to configure"
 
 
-
+WP w kontenerze, dodatkowo MYSQL  też w kontenerze , Application Gateway na froncie ..
+https://github.com/Azure/azure-quickstart-templates/tree/master/201-aci-wordpress-vnet
 
 
