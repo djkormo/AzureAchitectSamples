@@ -12,13 +12,15 @@ Liczę na dobre zrzuty ekranu i opis rozwiązania.
 
 Propozycja
 
-VNEN1
+Wordpress uruchomiony z kontenera z  baza Mysql (Paas). 
 
-SUBNET1 Application Gateway z publicznym IP
+VNET-WP-09
+
+SUBNET-FP Application Gateway z publicznym IP
 
 
 
-SUBNET2 WebApp for Containers (linux version)
+SUBNET-WK WebApp for Containers (linux version)
 
 Tu zostanie uruchomiony wordpress z obrazu
 
@@ -38,7 +40,7 @@ define('DB_HOST', getenv('WORDPRESS_DB_HOST'));
 
 
 
-SUBNET3
+SUBNET-DB
 
 Azure Database for MySQL
 

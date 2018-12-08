@@ -22,4 +22,23 @@ Każda aplikacja www wystawiona w Azure powinna być za usługa rozrzucającą r
 
 4.	Na końcu powiedz, jakie limity usług zweryfikowałeś by zbudować taką architekturę. To ważne, chmura też ma swoje ograniczenia.
 
-Limity 
+Limity zgodnie z dokumentacją:
+
+https://docs.microsoft.com/en-us/azure/azure-subscription-service-limits
+
+
+Dobre praktyki zgodnie z
+
+https://docs.microsoft.com/en-us/azure/security/azure-security-network-security-best-practices
+
+
+
+1. Poszczególne środowiska (dev, beta, prod) powinny być być wydzielone do oddzielnych vnetów. Warto też wyizolować „grubsze klocki” (np. część kliencka sklepu, backoffice, systemy księgowości, systemy dla partnerów) z każdego środowiska do oddzielnych VNETów. Podział na subnety może obrazować mniejsze obszary w ramach danej dziedziny (np. jak również podział na poszczególne warstwy aplikacji (frontend, backend, db)
+2. Vnety związane z różnymi środowiskami nie powinny być związane przez peering i móc ze sobą rozmawiać, wyjątkiem może być połączenie z vnetem zawierającym różnego rodzaju usługi współdzielone między środowiskami jak DNS czy AD.
+3. Adresacja subnetów nie powinna być za mała – z każdego subnetu 5 adresów rezerwuje Azure, z drugiej strony nie ma też sensu tworzyć ogromnych subnetów bez potrzeby
+4. Jeżeli nie ma udostępnienia zasobów na zewnątrz, NSG powinno blokować cały ruch przychodzący do VNETu
+5. Ruch przychodzący
+6. Unikajmy zasobów (jak VM czy webapp) wystawionych na zewnątrz bezpośrednio przez publiczny adres IP, lepiej wykorzystać warstwę pośrednią jak Load Balancer, Application Gateway.
+7. Warto zbudować DMZ z usługą Azure Frewall lub wybranym NVA aby ruch przychodzący był dodatkowo filtrowany.
+8. Połączenia do usług szczególnie krytycznych dla bezpieczeństwa jak np. baza danych czy usługa do płatności warto ograniczyć korzystając z ASG
+9. Testujmy za pomocą IP Flow Verify, czy dobrze zrealizowaliśmy nasze założenia

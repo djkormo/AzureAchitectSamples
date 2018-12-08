@@ -91,14 +91,14 @@
         },
         "virtualNetworkName": {
             "type": "string",
-            "defaultValue": "azure_mysql_vnet",
+            "defaultValue": "VNET-WP-09",
             "metadata": {
                 "description": "Virtual Network Name"
             }
         },
         "subnetName": {
             "type": "string",
-            "defaultValue": "azure_mysql_subnet",
+            "defaultValue": "SUBNET-DB",
             "metadata": {
                 "description": "Subnet Name"
             }
@@ -119,7 +119,7 @@
         },
         "subnetPrefix": {
             "type": "string",
-            "defaultValue": "10.0.0.0/16",
+            "defaultValue": "10.0.2.0/24",
             "metadata": {
                 "description": "Subnet Address Prefix"
             }
