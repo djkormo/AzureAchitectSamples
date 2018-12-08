@@ -1,0 +1,346 @@
+  11.3 Media Services z najprostsz¹ Azure Functions
+Jeœli wolisz jednak Media Services, chcia³bym byæ napisa³ prosty system, który dla ka¿dego pliku, za³adowanego do bloba, wrzuca go do Media Services i wykonuje konwersjê na dowolny format. Przyk³ady znajdziesz w wielu miejscach. Skorzystaj z nich, przetestuje i naucz siê je budowaæ. 
+
+
+Dokumentacja 
+https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-dotnet-how-to-use-azure-functions
+https://github.com/Azure-Samples/media-services-dotnet-functions-integration
+https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-use-aad-auth-to-access-ams-api
+
+1. Utworzenie us³ugi Media Services 
+
+Jego endpoint  https://djkormo2018mediaservice.restv2.northeurope.media.azure.net/api/
+ 
+2. Dodanie service principala
+
+
+az ad sp create-for-rbac -n sp-mediaservice --skip-assignment --password=Pa44Word,.
+
+
+{
+  "appId": "c01dc750-f15a-4665-8c93-59904c193b27",
+  "displayName": "sp-mediaservice",
+  "name": "http://sp-mediaservice",
+  "password": "Pa44Word,.",
+  "tenant": "f70d3834-7022-4669-8f14-14c36ebc5c5c"
+}
+
+
+
+3. Budowa funkcji Azure na bazie BlobTrigger
+
+
+Do ustawienia cztery zmienne œrodowiskowe 
+
+
+AMSAADTenantDomain  kormogos.onmicrosoft.com (domena tenanta subskrypcji)
+
+AMSRESTAPIEndpoint  https://djkormo2018mediaservice.restv2.northeurope.media.azure.net/api/
+
+AMSClientId c01dc750-f15a-4665-8c93-59904c193b27 (z service principala sp-mediaservice)
+
+AMSClientSecret Pa44Word,. (z service principala sp-mediaservice)
+
+Testowane dla
+input/SampleVideo_1280x720_1mb.mp4
+
+Plik pobrany z 
+
+
+
+
+Na razie wykonanie konczy siê tak:
+
+https://sample-videos.com/
+
+
+2018-12-08T14:14:50  Welcome, you are now connected to log-streaming service.
+2018-12-08T14:15:08.829 [Information] Executing 'Functions.BlobTrigger1' (Reason='This function was programmatically called via the host APIs.', Id=4c37bba7-87a2-48ad-a574-76ff2b38f346)
+2018-12-08T14:15:08.889 [Error] Function compilation error
+Microsoft.CodeAnalysis.Scripting.CompilationErrorException : Script compilation failed.
+   at async Microsoft.Azure.WebJobs.Script.Description.DotNetFunctionInvoker.CreateFunctionTarget(CancellationToken cancellationToken) at C:\azure-webjobs-sdk-script\src\WebJobs.Script\Description\DotNet\DotNetFunctionInvoker.cs : 314
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at async Microsoft.Azure.WebJobs.Script.Description.FunctionLoader`1.GetFunctionTargetAsync[T](Int32 attemptCount) at C:\azure-webjobs-sdk-script\src\WebJobs.Script\Description\FunctionLoader.cs : 55
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at async Microsoft.Azure.WebJobs.Script.Description.DotNetFunctionInvoker.GetFunctionTargetAsync(Boolean isInvocation) at C:\azure-webjobs-sdk-script\src\WebJobs.Script\Description\DotNet\DotNetFunctionInvoker.cs : 183
+2018-12-08T14:15:08.940 [Error] run.csx(9,30): error CS0234: The type or namespace name 'MediaServices' does not exist in the namespace 'Microsoft.WindowsAzure' (are you missing an assembly reference?)
+2018-12-08T14:15:09.043 [Error] run.csx(22,17): error CS0234: The type or namespace name 'IdentityModel' does not exist in the namespace 'Microsoft' (are you missing an assembly reference?)
+2018-12-08T14:15:09.069 [Warning] run.csx(37,64): warning CS0618: 'TraceWriter' is obsolete: 'Will be removed in an upcoming version. Use Microsoft.Extensions.Logging.ILogger instead.'
+2018-12-08T14:15:09.101 [Error] run.csx(96,16): error CS0246: The type or namespace name 'IMediaProcessor' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:09.165 [Warning] run.csx(107,93): warning CS0618: 'TraceWriter' is obsolete: 'Will be removed in an upcoming version. Use Microsoft.Extensions.Logging.ILogger instead.'
+2018-12-08T14:15:09.220 [Error] run.csx(107,26): error CS0246: The type or namespace name 'IAsset' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:09.245 [Warning] run.csx(129,98): warning CS0618: 'TraceWriter' is obsolete: 'Will be removed in an upcoming version. Use Microsoft.Extensions.Logging.ILogger instead.'
+2018-12-08T14:15:09.301 [Error] run.csx(129,26): error CS0246: The type or namespace name 'IAsset' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:09.389 [Error] run.csx(34,16): error CS0246: The type or namespace name 'CloudMediaContext' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:09.441 [Error] run.csx(51,9): error CS0246: The type or namespace name 'AzureAdTokenCredentials' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:09.547 [Error] run.csx(51,56): error CS0246: The type or namespace name 'AzureAdTokenCredentials' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:09.597 [Error] run.csx(52,33): error CS0246: The type or namespace name 'AzureAdClientSymmetricKey' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:09.643 [Error] run.csx(53,29): error CS0103: The name 'AzureEnvironments' does not exist in the current context
+2018-12-08T14:15:09.760 [Error] run.csx(55,9): error CS0246: The type or namespace name 'AzureAdTokenProvider' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:09.815 [Error] run.csx(55,50): error CS0246: The type or namespace name 'AzureAdTokenProvider' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:09.867 [Error] run.csx(57,24): error CS0246: The type or namespace name 'CloudMediaContext' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:09.928 [Error] run.csx(59,9): error CS0246: The type or namespace name 'IAsset' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:10.008 [Error] run.csx(64,9): error CS0246: The type or namespace name 'IJob' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:10.067 [Error] run.csx(68,9): error CS0246: The type or namespace name 'IMediaProcessor' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:10.121 [Error] run.csx(71,9): error CS0246: The type or namespace name 'ITask' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:10.157 [Error] run.csx(74,13): error CS0103: The name 'TaskOptions' does not exist in the current context
+2018-12-08T14:15:10.290 [Error] run.csx(82,44): error CS0103: The name 'AssetCreationOptions' does not exist in the current context
+2018-12-08T14:15:10.364 [Error] run.csx(108,5): error CS0246: The type or namespace name 'IAsset' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:10.412 [Error] run.csx(111,14): error CS0246: The type or namespace name 'IAsset' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:10.482 [Error] run.csx(135,51): error CS0103: The name 'AssetCreationOptions' does not exist in the current context
+2018-12-08T14:15:10.520 [Error] run.csx(138,5): error CS0246: The type or namespace name 'IAccessPolicy' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:10.563 [Error] run.csx(139,28): error CS0103: The name 'AccessPermissions' does not exist in the current context
+2018-12-08T14:15:10.602 [Error] run.csx(140,5): error CS0246: The type or namespace name 'ILocator' could not be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:10.647 [Error] run.csx(140,67): error CS0103: The name 'LocatorType' does not exist in the current context
+2018-12-08T14:15:10.694 [Error] run.csx(148,20): error CS1061: 'CloudBlobContainer' does not contain a definition for 'CreateIfNotExists' and no extension method 'CreateIfNotExists' accepting a first argument of type 'CloudBlobContainer' could be found (are you missing a using directive or an assembly reference?)
+2018-12-08T14:15:10.759 [Error] Executed 'Functions.BlobTrigger1' (Failed, Id=4c37bba7-87a2-48ad-a574-76ff2b38f346)
+Script compilation failed.
+
+
+Po zmianie  wersji funkcji z 2 na 1... (nale¿y zmieniæ FUNCTIONS_EXTENSION_VERSION na ~1 zamiast ~2 i zapisaæ zmiany
+
+
+
+2018-12-08T14:20:57  Welcome, you are now connected to log-streaming service.
+
+2018-12-08T14:21:04.304 [Info] Function started (Id=e6d77979-a310-41ec-ac9b-5c06b91eb681)
+2018-12-08T14:21:04.398 [Info] C# Blob trigger function processed: SampleVideo_1280x720_1mb.mp4
+2018-12-08T14:21:04.398 [Info] Media Services REST endpoint : https://djkormo2018mediaservice.restv2.northeurope.media.azure.net/api/
+2018-12-08T14:21:07.109 [Info] Created new asset SampleVideo_1280x720_1mb.mp4
+2018-12-08T14:21:07.500 [Info] Created asset.
+2018-12-08T14:21:07.624 [Info] Copy Complete.
+2018-12-08T14:21:08.124 [Info] Asset Copied : nb:cid:UUID:b2d45458-d9ab-4cbd-b46c-914e5e8edb72
+2018-12-08T14:21:08.833 [Info] Job Submitted
+2018-12-08T14:21:08.833 [Info] Function completed (Success, Id=e6d77979-a310-41ec-ac9b-5c06b91eb681, Duration=4524ms)
+
+
+
+Zawartoœæ
+
+function.json
+
+{
+  "bindings": [
+    {
+      "name": "myBlob",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "input/{filename}.mp4",
+      "connection": "ConnectionString"
+    }
+  ]
+}
+
+project.json
+
+{
+  "frameworks": {
+    "net46":{
+      "dependencies": {
+        "windowsazure.mediaservices": "4.0.0.4",
+        "windowsazure.mediaservices.extensions": "4.0.0.4",
+        "Microsoft.IdentityModel.Clients.ActiveDirectory": "3.13.1",
+        "Microsoft.IdentityModel.Protocol.Extensions": "1.0.2.206221351"
+      }
+    }
+   }
+} 
+
+
+run.csx
+
+#r "Microsoft.WindowsAzure.Storage"
+#r "Newtonsoft.Json"
+#r "System.Web"
+
+using System;
+using System.Net;
+using System.Net.Http;
+using Newtonsoft.Json;
+using Microsoft.WindowsAzure.MediaServices.Client;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.IO;
+using System.Web;
+using Microsoft.Azure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.Azure.WebJobs;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+
+// Read values from the App.config file.
+
+static readonly string _AADTenantDomain = Environment.GetEnvironmentVariable("AMSAADTenantDomain");
+static readonly string _RESTAPIEndpoint = Environment.GetEnvironmentVariable("AMSRESTAPIEndpoint");
+
+static readonly string _mediaservicesClientId = Environment.GetEnvironmentVariable("AMSClientId");
+static readonly string _mediaservicesClientSecret = Environment.GetEnvironmentVariable("AMSClientSecret");
+
+static readonly string _connectionString = Environment.GetEnvironmentVariable("ConnectionString");  
+
+private static CloudMediaContext _context = null;
+private static CloudStorageAccount _destinationStorageAccount = null;
+
+public static void Run(CloudBlockBlob myBlob, string fileName, TraceWriter log)
+{
+    // NOTE that the variables {fileName} here come from the path setting in function.json
+    // and are passed into the  Run method signature above. We can use this to make decisions on what type of file
+    // was dropped into the input container for the function. 
+
+    // No need to do any Retry strategy in this function, By default, the SDK calls a function up to 5 times for a 
+    // given blob. If the fifth try fails, the SDK adds a message to a queue named webjobs-blobtrigger-poison.
+
+    log.Info($"C# Blob trigger function processed: {fileName}.mp4");
+    log.Info($"Media Services REST endpoint : {_RESTAPIEndpoint}");
+//
+    try
+    {
+        AzureAdTokenCredentials tokenCredentials = new AzureAdTokenCredentials(_AADTenantDomain,
+                            new AzureAdClientSymmetricKey(_mediaservicesClientId, _mediaservicesClientSecret),
+                            AzureEnvironments.AzureCloudEnvironment);
+
+        AzureAdTokenProvider tokenProvider = new AzureAdTokenProvider(tokenCredentials);
+
+        _context = new CloudMediaContext(new Uri(_RESTAPIEndpoint), tokenProvider);
+
+        IAsset newAsset = CreateAssetFromBlob(myBlob, fileName, log).GetAwaiter().GetResult();
+
+        // Step 2: Create an Encoding Job
+
+        // Declare a new encoding job with the Standard encoder
+        IJob job = _context.Jobs.Create("Azure Function - MES Job");
+
+        // Get a media processor reference, and pass to it the name of the 
+        // processor to use for the specific task.
+        IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
+
+        // Create a task with the encoding details, using a custom preset
+        ITask task = job.Tasks.AddNew("Encode with Adaptive Streaming",
+            processor,
+            "Adaptive Streaming",
+            TaskOptions.None); 
+
+        // Specify the input asset to be encoded.
+        task.InputAssets.Add(newAsset);
+
+        // Add an output asset to contain the results of the job. 
+        // This output is specified as AssetCreationOptions.None, which 
+        // means the output asset is not encrypted. 
+        task.OutputAssets.AddNew(fileName, AssetCreationOptions.None);
+
+        job.Submit();
+        log.Info("Job Submitted");
+
+    }
+    catch (Exception ex)
+    {
+        log.Error("ERROR: failed.");
+        log.Info($"StackTrace : {ex.StackTrace}");
+        throw ex;
+    }
+}
+
+private static IMediaProcessor GetLatestMediaProcessorByName(string mediaProcessorName)
+{
+    var processor = _context.MediaProcessors.Where(p => p.Name == mediaProcessorName).
+    ToList().OrderBy(p => new Version(p.Version)).LastOrDefault();
+
+    if (processor == null)
+    throw new ArgumentException(string.Format("Unknown media processor", mediaProcessorName));
+
+    return processor;
+}
+
+public static async Task<IAsset> CreateAssetFromBlob(CloudBlockBlob blob, string assetName, TraceWriter log){
+    IAsset newAsset = null;
+
+    try{
+        Task<IAsset> copyAssetTask = CreateAssetFromBlobAsync(blob, assetName, log);
+        newAsset = await copyAssetTask;
+        log.Info($"Asset Copied : {newAsset.Id}");
+    }
+    catch(Exception ex){
+        log.Info("Copy Failed");
+        log.Info($"ERROR : {ex.Message}");
+        throw ex;
+    }
+
+    return newAsset;
+}
+
+/// <summary>
+/// Creates a new asset and copies blobs from the specifed storage account.
+/// </summary>
+/// <param name="blob">The specified blob.</param>
+/// <returns>The new asset.</returns>
+public static async Task<IAsset> CreateAssetFromBlobAsync(CloudBlockBlob blob, string assetName, TraceWriter log)
+{
+     //Get a reference to the storage account that is associated with the Media Services account. 
+    _destinationStorageAccount = CloudStorageAccount.Parse(_connectionString);
+
+    // Create a new asset. 
+    var asset = _context.Assets.Create(blob.Name, AssetCreationOptions.None);
+    log.Info($"Created new asset {asset.Name}");
+
+    IAccessPolicy writePolicy = _context.AccessPolicies.Create("writePolicy",
+    TimeSpan.FromHours(4), AccessPermissions.Write);
+    ILocator destinationLocator = _context.Locators.CreateLocator(LocatorType.Sas, asset, writePolicy);
+    CloudBlobClient destBlobStorage = _destinationStorageAccount.CreateCloudBlobClient();
+
+    // Get the destination asset container reference
+    string destinationContainerName = (new Uri(destinationLocator.Path)).Segments[1];
+    CloudBlobContainer assetContainer = destBlobStorage.GetContainerReference(destinationContainerName);
+
+    try{
+    assetContainer.CreateIfNotExists();
+    }
+    catch (Exception ex)
+    {
+    log.Error ("ERROR:" + ex.Message);
+    }
+
+    log.Info("Created asset.");
+
+    // Get hold of the destination blob
+    CloudBlockBlob destinationBlob = assetContainer.GetBlockBlobReference(blob.Name);
+
+    // Copy Blob
+    try
+    {
+    using (var stream = await blob.OpenReadAsync()) 
+    {            
+        await destinationBlob.UploadFromStreamAsync(stream);          
+    }
+
+    log.Info("Copy Complete.");
+
+    var assetFile = asset.AssetFiles.Create(blob.Name);
+    assetFile.ContentFileSize = blob.Properties.Length;
+    assetFile.IsPrimary = true;
+    assetFile.Update();
+    asset.Update();
+    }
+    catch (Exception ex)
+    {
+    log.Error(ex.Message);
+    log.Info (ex.StackTrace);
+    log.Info ("Copy Failed.");
+    throw;
+    }
+
+    destinationLocator.Delete();
+    writePolicy.Delete();
+
+    return asset;
+}
+
+
+Zmiana hasla SP
+
+az ad sp credential reset --name "c01dc750-f15a-4665-8c93-59904c193b27"
+
+
