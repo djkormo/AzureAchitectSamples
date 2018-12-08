@@ -44,11 +44,11 @@ for i in `seq 1 2`; do
 	 --admin-password Pa$$word2018..
 done
 	
-## instalacja mazy danych mysql 
+## instalacja bazy danych mysql 
 
 
 az mysql server create -l northeurope -g rg-tydzien-09-final -n mysqldjkormo2018  \
-    --admin-user mysqladmin --admin-password Pa$$word2018.. --sku-name B_Gen5_2 \
+    --admin-user mysqladmin --admin-password Pa$$word2018.. --sku-name B_Gen5_1 \
     --ssl-enforcement Disabled \ 
     --storage-size 51200 --tags "szkola=week9" --version 5.7
 
@@ -66,7 +66,7 @@ az mysql server vnet-rule create --help
 
 az network application-gateway create -g rg-tydzien-09-final -n WpDjkormoAppGateway --capacity 2 --sku Standard_Small \
                             --vnet-name VNET-WP-09 --subnet SUBNET-FP --http-settings-cookie-based-affinity Disabled \
-                            --public-ip-address MyAppGatewayPublicIp
+                            --public-ip-address MyAppGatewayPublicIp --servers 10.0.0.4 10.0.0.5
 
 
 # az network application-gateway create --help
@@ -82,3 +82,8 @@ az vm extension set -g rg-tydzien-09-final --vm-name myUbuntuWP$i \
 done
 
 
+
+az group delete --name rg-tydzien-09-final --no-wait --yes
+
+
+az group list -o table
