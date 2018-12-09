@@ -76,7 +76,7 @@ for i in `seq 1 2`; do
 done
 	
 
-Installing WP on ubuntu 6.04 LTS
+Installing WP on ubuntu 1604 LTS
 
 https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/wordpress-single-vm-ubuntu/install_wordpress.sh
 
@@ -111,5 +111,30 @@ logger "Done installing WordPress; open /wordpress to configure"
 
 WP w kontenerze, dodatkowo MYSQL  też w kontenerze , Application Gateway na froncie ..
 https://github.com/Azure/azure-quickstart-templates/tree/master/201-aci-wordpress-vnet
+
+
+
+Instalacja szachow w js
+
+# aktualizacja pakietow
+
+sudo apt-get clean -qy
+sudo apt-get update -qy
+
+# install packages
+sudo apt-get install apache2 git -qy
+
+# clone content of sample app
+sudo git clone https://github.com/djkormo/simple-chess-ai
+
+# copy content to apache root directory
+cd simple-chess-ai 
+cp -R . /var/www/html/ 
+#sudo cd .. 
+# rm -r simple-chess-ai/
+sudo chmod a+x -R /var/www/html/
+
+
+
 
 

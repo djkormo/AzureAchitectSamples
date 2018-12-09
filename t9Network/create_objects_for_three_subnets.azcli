@@ -43,33 +43,59 @@ for i in `seq 1 2`; do
      --admin-username azureuser \
 	 --admin-password Pa$$word2018..
 done
-	
-## instalacja bazy danych mysql 
 
+# https://docs.microsoft.com/en-us/azure/application-gateway/application-gateway-create-gateway-cli
 
-az mysql server create -l northeurope -g rg-tydzien-09-final -n mysqldjkormo2018  \
-    --admin-user mysqladmin --admin-password Pa$$word2018.. --sku-name B_Gen5_1 \
-    --ssl-enforcement Disabled \ 
-    --storage-size 51200 --tags "szkola=week9" --version 5.7
+address1=$(az network nic show --name myUbuntuWP1VMNic --resource-group rg-tydzien-09-final | grep "\"privateIpAddress\":" | grep -oE '[^ ]+$' | tr -d '",')
+address2=$(az network nic show --name myUbuntuWP2VMNic --resource-group rg-tydzien-09-final | grep "\"privateIpAddress\":" | grep -oE '[^ ]+$' | tr -d '",')
 
+echo "$address1"
+echo "$address2"
 
-
-# dodanie reguły dla VNET
-az mysql server vnet-rule create -g rg-tydzien-09-final \
-    -s mysqldjkormo2018 -n vnetMysqlRuleName \
-    --subnet SUBNET-DB --vnet-name VNET-WP-09 \
-    --ignore-missing-endpoint
-
-az mysql server vnet-rule create --help
-
-
-
+# instalacja application gateway 
 az network application-gateway create -g rg-tydzien-09-final -n WpDjkormoAppGateway --capacity 2 --sku Standard_Small \
                             --vnet-name VNET-WP-09 --subnet SUBNET-FP --http-settings-cookie-based-affinity Disabled \
-                            --public-ip-address MyAppGatewayPublicIp --servers 10.0.0.4 10.0.0.5
+                            --public-ip-address MyAppGatewayPublicIp --servers $address1 $address2
 
 
 # az network application-gateway create --help
+
+
+
+## instalacja bazy mssql
+# https://docs.microsoft.com/en-us/azure/sql-database/scripts/sql-database-monitor-and-scale-database-cli?toc=%2fcli%2fazure%2ftoc.json
+export adminlogin=ServerAdmin
+
+export password=Pa$$word2018..
+# the logical server name has to be unique in the system
+export servername=dj2018sqlserver-$RANDOM
+echo "$servername"
+
+az configure --defaults location=northeurope
+
+# tworzenie serwera sql
+az sql server create \
+	--name $servername \
+	--resource-group rg-tydzien-09-final \
+	--admin-user $adminlogin \
+	--admin-password $password
+
+# tworzenie bazy sql
+az sql db create \
+	--resource-group rg-tydzien-09-final \
+	--server $servername \
+	--name djkormodatabase \
+	--service-objective S0
+
+
+
+# tworzenie ASG
+
+az network asg create -g rg-tydzien-09-final -n MyFP --tags Tydzien=09, CostCenter=djkormo
+az network asg create -g rg-tydzien-09-final -n MyWK --tags Tydzien=09, CostCenter=djkormo
+az network asg create -g rg-tydzien-09-final -n MyDB --tags Tydzien=09, CostCenter=djkormo
+
+az network asg list -o table
 
 ## Instalacja Wordpressa na VM
 #https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/wordpress-single-vm-ubuntu/install_wordpress.sh
@@ -80,6 +106,9 @@ az vm extension set -g rg-tydzien-09-final --vm-name myUbuntuWP$i \
     --settings @C:/developing/Azure/535/AzureAchitectSamples/t9Network/wp-config.json --verbose
 
 done
+
+
+
 
 
 
