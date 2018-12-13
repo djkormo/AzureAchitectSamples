@@ -3,3 +3,71 @@
 ?	Nastêpnie za pomoc¹ Stream Analytics zrób proste grupowanie danych (np. œrednia temperatura w oknie 5 min) albo filtrowania (np. Tylko odczyty temperatur poni¿ej 80 stopni) 
 ?	Zaprezentuj wynik na wykresie (np. za pomoc¹ Power BI)
 ?	Rozwi¹zanie ma byæ najprostsze z mo¿liwych i ma dzia³aæ, nie silmy siê na piêkny kod (choæ ten zawsze w cenie) czy idealne po³¹czenie ?
+
+
+
+Na pocz¹tku utworzy³em IOT Hub w wersji free.
+
+W darmowym planie F1 mamy do wykorzystania 8000 komunikatów na dobê, jeœli dobrze oszacowa³em oznacza to jeden komunikat co 11 sekund. Do prostych pomiarów jest to wystarczaj¹ce.
+
+
+
+Po uruchomieniu Huba pobra³em jego connection string 
+
+Do testu wykorzysta³em symulator Raspberry PI.
+
+https://azure-samples.github.io/raspberry-pi-web-simulator/
+
+
+Przyk³ad logów z urz¹dzenia wirtualnego, przerobi³em odstêp czasowy na 15 sekund.
+
+Sumulacja generuje dane z dwóæh czujników : temeperaturê i wilgotnoœæ
+
+
+Po uruchomieniu symulacji:
+
+> 
+Sending message: {"messageId":1,"deviceId":"Raspberry Pi Web Client","temperature":29.768733464247262,"humidity":67.77587058885028}
+> 
+Message sent to Azure IoT Hub
+> 
+Sending message: {"messageId":2,"deviceId":"Raspberry Pi Web Client","temperature":23.240369450187053,"humidity":74.84319736610192}
+> 
+Message sent to Azure IoT Hub
+> 
+Sending message: {"messageId":3,"deviceId":"Raspberry Pi Web Client","temperature":31.874865855242664,"humidity":76.31606307203533}
+> 
+Message sent to Azure IoT Hub
+> 
+Sending message: {"messageId":4,"deviceId":"Raspberry Pi Web Client","temperature":30.745672697283137,"humidity":74.09471429824123}
+> 
+Message sent to Azure IoT Hub
+> 
+Sending message: {"messageId":5,"deviceId":"Raspberry Pi Web Client","temperature":25.94930655044168,"humidity":61.80139870121786}
+> 
+Message sent to Azure IoT Hub
+> 
+Sending message: {"messageId":6,"deviceId":"Raspberry Pi Web Client","temperature":22.445458490006583,"humidity":75.37050629448252}
+> 
+Message sent to Azure IoT Hub
+> 
+Sending message: {"messageId":7,"deviceId":"Raspberry Pi Web Client","temperature":31.42458940620131,"humidity":70.168273839768}
+> 
+Message sent to Azure IoT Hub
+
+
+Doda³em stream analitycs 
+wejscie: moje urz¹dzenie IOT 
+wyjœcie: Storage Table.
+
+
+
+Dla ciekawych jeden z moich wpisów na blogu dotycz¹cy zabawy z IoT i urz¹dzeniem fizycznym.
+
+Modu³ WiFi oparty na uk³adzie ESP8266. Na pok³adzie znajduje siê 9 portów GPIO z obs³ug¹ I2C i SPI, wejœcie analogowe oraz z³¹cze baterii lipol 3,7 V. Posiada oprogramowanie NodeMCU, które wspiera jêzyk skryptowy Lua lub œrodowisko Arduino IDE. Dodatkowym atutem jest wbudowany konwerter napiêæ na liniach interfejsu UART.
+Czyli skrócie dostajemy gotowe urz¹dzenie, które potrafi siê komunikowaæ po WIFI i ma mo¿liwoœæ pod³¹czania dodatkowych czujników m.in. temperatury i wilgotnoœci.
+
+Wykorzysta³em Arduino i Visual Studio Code
+
+http://wchmurze.cloud/index.php/2018/05/03/zabawa-z-iot-na-platformie-azure/
+
