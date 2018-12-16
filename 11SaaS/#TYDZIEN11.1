@@ -13,7 +13,10 @@ Dodanie konta dla us³ug poznawczych
 
 Wybra³em darmowy plan F0 i lokalizacjê nordeurope.
 
-Taki endpoint ma wartoœæzmiennje
+Po uruchomieniu nale¿y pobra¿ wartoœæ klucza, bêdzie on potrzebny do App Service, na który osadzona jest funkcja.
+
+Taki endpoint ma wartoœæ zmiennej 
+
 https://northeurope.api.cognitive.microsoft.com/vision/v2.0
 
 Nale¿y zwróciæ uwagê na wybranie w konfiguracji dobrej wartoœci. Wygenerowany klucz do API dzia³a tylka dla danej lokalizacji.
@@ -176,6 +179,17 @@ public float racyScore { get; set; }
 
 
 Test przeprowadzi³em na kilku obrazach
+
+Jeden z nich nie przeszed³ weryfikacji
+
+[Info] Function started (Id=e48fccf1-33c9-4d9a-b082-ad61acc6d5d9)
+[Info] Analyzing uploaded image abc.jpg for adult content...
+[Info] Is Adult: True
+[Info] Adult Score: 0.9495677
+[Info] Is Racy: True
+[Info] Racy Score: 0.979344
+[Info] Writing blob and metadata to rejected container...
+[Info] Function completed (Success, Id=e48fccf1-33c9-4d9a-b082-ad61acc6d5d9, Duration=715ms)
 
 
 
