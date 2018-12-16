@@ -57,10 +57,41 @@ Message sent to Azure IoT Hub
 
 
 Doda³em stream analitycs 
-wejscie: moje urz¹dzenie IOT 
-wyjœcie: Storage Table.
+wejscie: moje urz¹dzenie IOT  <-RaspPi (INPUT)
+wyjœcie: SQL Database. -> sqldatabase (OUTPUT)
 
 
+
+Kwerenda
+
+SELECT
+    messageId,deviceId,temperature,humidity,EventProcessedUtcTime
+INTO
+    sqldatabase
+FROM
+    RaspPi
+	
+	
+Skrypt tworz¹cy tabele iotoutput
+
+
+Create table iotoutput
+(
+ messageId int
+
+,deviceId varchar(100) 
+,temperature numeric(12,2)
+
+,humidity numeric (12,2)
+
+,EventProcessedUtcTime datetime
+
+)
+
+
+Prosty wykres z bazy danych w Excelu.
+
+	
 
 Dla ciekawych jeden z moich wpisów na blogu dotycz¹cy zabawy z IoT i urz¹dzeniem fizycznym.
 
