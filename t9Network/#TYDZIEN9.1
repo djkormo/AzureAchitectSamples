@@ -26,7 +26,6 @@ Limity zgodnie z dokumentacją:
 
 https://docs.microsoft.com/en-us/azure/azure-subscription-service-limits
 
-
 Dobre praktyki zgodnie z
 
 https://docs.microsoft.com/en-us/azure/security/azure-security-network-security-best-practices
@@ -39,5 +38,20 @@ https://docs.microsoft.com/en-us/azure/security/azure-security-network-security-
 5. Pula dostępna w podsieci nie powinna być zbyt małą, gdyż należy pamiętać i pięciu adresach IP zarezerwowanych przez Azure ze względów technicznych
 6. Żadna z usług webowych nie powinna być udostępniona bezpośrednio przez publiczne IP. Przed nią należy zawsze położyc usługi typu Application Gateway , Traffic Manager.....
 7. Żadna z maszyn wirtualnych nie powinna mieć wystawionego bezpośrednio ruchu dla SSH (Linux) , czy RDP (windows). Logowanie na takie hosty powinno się odbywać wyłącznie przez stacje przesiadkowe. Można się też zastanowaić nad uruchomieniem VPN.
-8. Network watcher pomaga w testowanii za pomocą IP Flow, czy nasze reguły NSG, ASG są poprawnie ustawione.
+8. Network watcher pomaga w testowaniu za pomocą IP Flow, czy nasze reguły NSG, ASG są poprawnie ustawione.
+
+Niektóre z ograniczeń
+1. Niestety nie każda usługa może korzystać z ASG. Obecnie dotyczy do tylko kart sieciowych (NIC) maszyn wirtualnych VM.
+https://azure.microsoft.com/en-us/blog/applicationsecuritygroups/
+2. Parowanie VNET dla bazy danych mysql dziala tylko dla wersji powyżej Basic.
+3. Nie ma możliwości umieszczenia róznych baz danych w tym samym subnecie, tak by kontrolować dostęp do nich osobno 
+Service tag o nazwie Microsoft.Sql ma zastosowanie dla Azure SQL Database, Azure Database for PostgreSQL i MySQL. 
+
+
+
+
+
+
+
+
 
