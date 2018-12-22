@@ -1,0 +1,86 @@
+11.2 Bot z us³ug¹ kognitywn¹
+Jeœli masz wiêcej czasu, napisz najprostszego Bot'a, który odpowiada na dwa proste polecenia i jeœli to mo¿liwe, niech do obs³ugi jednego z nich, wykorzysta us³ugê kognitywn¹. Np. do rozpoznawania jêzyka czy sentymentu zdania? Jak wolisz coœ innego – jestem otwarty na propozycje. Bot mo¿e korzystaæ z dowolnego kana³u.
+
+
+
+
+Literatura:
+
+https://docs.microsoft.com/en-us/learn/modules/build-chat-bot-with-azure-bot-service/1-introduction
+
+https://social.technet.microsoft.com/wiki/contents/articles/51490.microsoft-bot-framework-building-intelligent-chat-bot-using-azure-functions-and-luis.aspx
+
+https://www.youtube.com/watch?v=1v_VgTy6q0Y
+
+
+
+Na podstawie filmu na YT  z 2017.
+
+oraz 
+
+
+https://www.captechconsulting.com/blogs/using-qna-maker-service-and-azure-bot-service-to-create-an-faq-bot-in-minutes
+
+https://docs.microsoft.com/en-us/azure/cognitive-services/qnamaker/quickstarts/get-answer-from-kb-using-postman
+
+
+Podobny artyku³
+
+https://www.searchenginejournal.com/build-qna-chatbot-guide/252387/
+
+
+Pierwsza bazê wiedzy -> poni¿szy URL
+
+https://docs.microsoft.com/en-us/azure/bot-service/bot-service-resources-bot-framework-faq?view=azure-bot-service-4.0
+
+
+Tworzenie bazy wiedzy dla bota na stronie
+
+https://www.qnamaker.ai/
+
+Bazê  uzupe³ni³em o kilka dowcipów ze strony
+
+http://igormicev.com/database-jokes/
+
+
+Pierwsze uruchomienie testu koñczy siê tak:
+
+Please set QnAKnowledgebaseId, QnAAuthKey and QnAEndpointHostName (if applicable) in App Settings. Learn how to get them at https://aka.ms/qnaabssetup.
+
+
+
+
+
+
+
+
+
+
+POST /knowledgebases/ed0b2815-352a-41af-9cf7-4e9c99300e8d/generateAnswer
+Host: https://djkormoqnamaker.azurewebsites.net/qnamaker
+Authorization: EndpointKey efb129e0-51c1-4696-882c-dfd836ed8ae5
+Content-Type: application/json
+{"question":"<Your question>"}
+
+
+curl -X POST https://djkormoqnamaker.azurewebsites.net/qnamaker/knowledgebases/ed0b2815-352a-41af-9cf7-4e9c99300e8d/generateAnswer -H "Authorization: EndpointKey efb129e0-51c1-4696-882c-dfd836ed8ae5" -H "Content-type: application/json" -d "{'question':'<Your question>'}"
+
+
+Strona z dowcipami
+
+http://www.eioba.pl/a/33l2/100-najlepszych-dowcipow
+
+
+Ten z dowcipami 
+
+POST /knowledgebases/a28b8171-681c-469e-8bf9-db6c32e4033a/generateAnswer
+Host: https://djkormoqnamaker.azurewebsites.net/qnamaker
+Authorization: EndpointKey efb129e0-51c1-4696-882c-dfd836ed8ae5
+Content-Type: application/json
+{"question":"LOL"}
+
+
+curl -X POST https://djkormoqnamaker.azurewebsites.net/qnamaker/knowledgebases/a28b8171-681c-469e-8bf9-db6c32e4033a/generateAnswer -H "Authorization: EndpointKey efb129e0-51c1-4696-882c-dfd836ed8ae5" -H "Content-type: application/json" -d "{'question':'<Your question>'}"
+
+
+

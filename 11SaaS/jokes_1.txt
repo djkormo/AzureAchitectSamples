@@ -1,0 +1,20 @@
+What did the DBA say to the Developer?	It doesn’t matter, he wasn’t listening anyway.
+What did the Developer say to the DBA?	It doesn’t matter, the answer was no.
+How many developers work at your office?	Oh, about half of them!
+Why do you never ask SQL people to help you move your furniture?	They sometimes drop the table.
+When did God create the DBA?	 The day before he had his rights revoked.
+How many QA testers does it take to change a lightbulb?	QA testers don’t change anything. They just report that it’s dark.
+How many software engineers does it take to change a lightbulb?	Just one. But the house falls down.
+What if you are too late to office and the manager catches you?	Ad hoc updates to system catalogs are not allowed!
+What if your Dad or Mom loses his or her car keys?	Parent keys not found.
+What if you see the theatre full when you go to a movie?	Maximum number of users exceeded.
+What if you don’t get a table in the lunch room?	 There is insufficient system memory in resource pool
+What if you dial a wrong number from your phone?	 Object does not exist or the name specified is incorrect!
+What if you need to go on a diet?	 ALTER DATABASE command failed.
+What if you are tall and try to adjust into a mini?	 The select list for the INSERT statement contains more items than the insert list. The number of SELECT values must match the number of INSERT columns.
+What if your old girl friend spots you with your new girlfriend?	 Normalization error in the node. Rule contains more than one variable.
+What if the golf ball doesn’t get into the hole at all and then you find the hole already contains no space inside it?	 Cannot insert explicit value for identity column in table when IDENTITY_INSERT is set to OFF.
+What if you try to freak out with somebody else’s girlfriend and being kicked out?	 Insufficient privileges on the specified object.
+What if you don’t get any response from the girl next door and her Brother hits you?	 Operand type clash: datatype is incompatible.
+What if you get response from the girl next door and from her sister too?	SELECT INTO returns too many rows.
+Why do you never ask SQL people to help you move your furniture?	They sometimes drops the table.
