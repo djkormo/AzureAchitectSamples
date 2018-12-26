@@ -1,0 +1,318 @@
+alias az='az.cmd'
+
+az configure --defaults location=canadacentral
+
+
+# utworzenie nowej RG w lokalizacji Canada Central
+az group create --name rg-tydzien-13-final --location  canadacentral
+
+az configure --defaults  group=rg-tydzien-13-final
+
+az network vnet create -g rg-tydzien-13-final -n VNET-VM-13 --address-prefix 10.0.0.0/16 \
+                            --subnet-name SUBNET-VM --subnet-prefix 10.0.0.0/24
+
+#  utworzenie zbioru wysokiej dostepnosci dla VM
+az vm availability-set create \
+    --resource-group rg-tydzien-13-final \
+    --name myApacheMysqlAvailabilitySet \
+    --platform-fault-domain-count 2 \
+--platform-update-domain-count 2
+
+
+# utworzenie dwoch VM z ubuntu  ramach tej samej Availabilty Set
+for i in `seq 1 2`; do
+   az vm create \
+     --resource-group rg-tydzien-13-final \
+     --name myapachemysql$i \
+     --availability-set myApacheMysqlAvailabilitySet \
+     --size Standard_A1_v2  \
+     --image UbuntuLTS \
+     --vnet-name VNET-VM-13 \
+     --subnet SUBNET-VM \
+     --admin-username azureuser \
+	 --admin-password Pa$$word2018..
+
+    az vm open-port --port 80 \
+    --resource-group rg-tydzien-13-final \
+    --name myapachemysql$i \
+    --priority 900
+
+done
+
+# dodanie usługi Recovery Vault Service 
+az backup vault create --resource-group rg-tydzien-13-final \
+    --name myRecoveryServicesVaultforCanadaVMs \
+    --location canadacentral
+
+
+az backup policy show --name DefaultPolicy  \
+--resource-group rg-tydzien-13-final \
+--vault-name myRecoveryServicesVaultforCanadaVMs
+
+
+# utworzenie swojej polityki backupu
+
+# https://docs.microsoft.com/en-us/cli/azure/policy/definition?view=azure-cli-latest
+
+az backup policy set -–policy @C:\developing\Azure\535\AzureAchitectSamples\13Monitoring\policy-VM-backup.json \
+ 
+ --resource-group rg-tydzien-13-final \
+ 
+ -–vault-name myRecoveryServicesVaultforCanadaVMs
+
+--az backup policy  --help
+
+# uzupełnienie maszyn o VM Backup
+for i in `seq 1 2`; do
+#  wlaczenie backupu
+az backup protection enable-for-vm \
+    --resource-group rg-tydzien-13-final \
+    --vault-name myRecoveryServicesVaultforCanadaVMs \
+    --vm myapachemysql$i \
+    --policy-name DefaultPolicy
+# start backupu
+az backup protection backup-now \
+    --resource-group rg-tydzien-13-final \
+    --vault-name myRecoveryServicesVaultforCanadaVMs \
+    --container-name myapachemysql$i \
+    --item-name myapachemysql$i \
+    --retain-until 31-12-2018
+
+done
+
+# lista wszystkich operacji 
+az backup job list \
+    --resource-group rg-tydzien-13-final \
+    --vault-name myRecoveryServicesVaultforCanadaVMs \
+    --output table
+
+# lista wykonanych operacji typu Backup
+az backup job list \
+    --resource-group rg-tydzien-13-final \
+    --vault-name myRecoveryServicesVaultforCanadaVMs \
+    --output table \
+    --operation Backup \
+    --status  Completed  
+    
+
+
+# lista utworzonych punktów odzysku, po zakonczeniu operacji backup
+
+for i in `seq 1 2`; do
+echo $i
+az backup recoverypoint list \
+    --resource-group rg-tydzien-13-final \
+    --vault-name myRecoveryServicesVaultforCanadaVMs \
+    --container-name myapachemysql$i \
+    --item-name myapachemysql$i \
+    --query [0].name \
+    --output tsv
+   
+done
+
+
+## RESTORING VM 
+
+# na podstawie https://docs.microsoft.com/en-us/azure/backup/tutorial-restore-disk
+
+# utworzenie konta magazynowego 
+az storage account create \
+    --resource-group rg-tydzien-13-final \
+    --name mystaccforcanadianvms \
+    --sku Standard_LRS
+
+
+# odtworzenie dysku VM 
+az backup restore restore-disks \
+    --resource-group rg-tydzien-13-final \
+    --vault-name myRecoveryServicesVaultforCanadaVMs \
+    --container-name myapachemysql1 \
+    --item-name myapachemysql1 \
+    --storage-account mystaccforcanadianvms \
+    --rp-name 68961133380206
+
+az backup restore restore-disks \
+    --resource-group rg-tydzien-13-final \
+    --vault-name myRecoveryServicesVaultforCanadaVMs \
+    --container-name myapachemysql2 \
+    --item-name myapachemysql2 \
+    --storage-account mystaccforcanadianvms \
+    --rp-name 70109033753712
+
+
+# monitorowanie statusu  dla operacji Restore
+az backup job list \
+    --resource-group rg-tydzien-13-final \
+    --vault-name myRecoveryServicesVaultforCanadaVMs \
+    --output table \
+    --operation Restore \
+    --status  Completed  
+
+# konwersja odtworzonego dysku na dysk zarządzalny 
+
+# pobieranie  polączenia dla podanego konta storage
+
+export AZURE_STORAGE_CONNECTION_STRING=$( az storage account show-connection-string \
+    --resource-group rg-tydzien-13-final \
+    --output tsv \
+    --name mystaccforcanadianvms )
+
+echo $AZURE_STORAGE_CONNECTION_STRING
+# az storage container list -o tsv 
+#az storage container list --query [0].name -o tsv  --num-results 2
+#az storage container list --help
+
+# obraz pierwszej maszyny VM
+
+
+
+container1=$(az storage container list --query [0].name -o tsv   --num-results 10)
+blob1=$(az storage blob list --container-name $container1 --query [0].name -o tsv --num-results 1 --prefix myapachemysql)
+uri1=$(az storage blob url --container-name $container1 --name $blob1 -o tsv)
+
+
+##az storage blob list --container-name $container1 -o tsv --num-results 10 --query [0].name 
+#az storage blob list --help 
+echo $container1 
+echo $blob1 
+echo $uri1 
+
+# obraz drugiej maszyny VM
+container2=$(az storage container list --query [1].name -o tsv --num-results 10)
+blob2=$(az storage blob list --container-name $container2 --query [0].name -o tsv --num-results 1 --prefix myapachemysql)
+uri2=$(az storage blob url --container-name $container2 --name $blob2 -o tsv)
+
+echo $container2
+echo $blob2
+echo $uri2
+
+# utworzenie  dwóch dysków zarządzalnych  do budowy VM
+
+export AZURE_STORAGE_CONNECTION_STRING=$( az storage account show-connection-string \
+    --resource-group rg-tydzien-13-final \
+    --output tsv \
+    --name mystaccforcanadianvms )
+
+echo $AZURE_STORAGE_CONNECTION_STRING
+
+
+for i in `seq 1 2`; do
+    # for container list  starting from 0
+    j=$((i-1))
+    export container=$(az storage container list --query [$j].name -o tsv   --num-results 10)
+    export blob=$(az storage blob list --container-name $container --query [0].name -o tsv --num-results 1 --prefix myapachemysql)
+    export uri=$(az storage blob url --container-name $container --name $blob -o tsv)
+    echo $uri
+
+    az disk create \
+    --resource-group rg-tydzien-13-final \
+    --name myVMRestoredDisk$i \
+    --sku Standard_LRS \
+    --source $uri
+
+done 
+
+
+echo "$uri1"
+# az disk create --help 
+az disk create \
+    --resource-group rg-tydzien-13-final \
+    --name myVMRestoredDisk1 \
+    --sku Standard_LRS \
+    --source $uri1
+
+echo "$uri2"
+az disk create \
+    --resource-group rg-tydzien-13-final \
+    --name myVMRestoredDisk2 \
+     --sku Standard_LRS \
+    --source $uri2
+
+az disk list  --resource-group  rg-tydzien-13-final  -o table
+
+az configure --defaults location=northeurope
+
+# utworzenie maszyn z odtworzonego obrazu 
+# nowa RG
+az group create --name rg-tydzien-13-final-restore --location  northeurope
+# nowa siec
+az network vnet create -g rg-tydzien-13-final-restore -n VNET-VM-13 --address-prefix 10.1.0.0/16 \
+                            --subnet-name SUBNET-VM --subnet-prefix 10.1.0.0/24
+
+#  utworzenie zbioru wysokiej dostepnosci dla VM
+# nowa grupa Availability Set 
+az vm availability-set create \
+    --resource-group rg-tydzien-13-final-restore \
+    --name myApacheMysqlAvailabilitySetRestore \
+    --platform-fault-domain-count 2 \
+    --platform-update-domain-count 2
+
+# odtworzenie VM z odtworzonych obrazów
+
+export managedDiskId=$(az disk show --name myVMRestoredDisk1 --resource-group rg-tydzien-13-final --query [id] -o tsv)
+echo $managedDiskId
+
+az vm create \
+    --resource-group rg-tydzien-13-final-restore \
+    --name myRestoredVM1 \
+    --size Standard_A1_v2  \
+    --availability-set myApacheMysqlAvailabilitySetRestore \
+    --vnet-name VNET-VM-13 \
+    --subnet SUBNET-VM \
+    --attach-os-disk  "$managedDiskId" \
+    --os-type linux
+
+for i in `seq 1 2`; do
+# dysk jest w innej RG niż tworzona VM
+managedDiskId=$(az disk show --name myVMRestoredDisk$i --resource-group rg-tydzien-13-final --query [id] -o tsv)
+echo $managedDiskId
+
+az vm create \
+    --resource-group rg-tydzien-13-final-restore \
+    --name myRestoredVM$i \
+    --size Standard_A1_v2  \
+    --availability-set myApacheMysqlAvailabilitySetRestore \
+    --vnet-name VNET-VM-13 \
+    --subnet SUBNET-VM \
+    --attach-os-disk "$managedDiskId" \
+    --os-type linux
+
+     az vm open-port --port 80 \
+    --resource-group rg-tydzien-13-final-restore \
+    --name myRestoredVM$i \
+    --priority 900
+
+done 
+ 
+
+# sprzatanie po  wdrożeniu 
+
+# usuniecie wygenerowanych zasobów 
+
+for i in `seq 1 2`; do
+
+az backup protection disable \
+    --resource-group rg-tydzien-13-final \
+    --vault-name myRecoveryServicesVaultforCanadaVMs \
+    --container-name myApacheMysql$i \
+    --item-name myApacheMysql$i \
+    --delete-backup-data true \
+    --yes
+ 
+done 
+
+az backup vault delete \
+    --resource-group rg-tydzien-13-final \
+    --name myRecoveryServicesVaultforCanadaVMs \
+    --yes 
+
+az group delete -n rg-tydzien-13-final  --yes --no-wait
+
+
+
+# lista grup aktywnej subskrypcji 
+az group list -o table
+# lista zasobow w grupie 
+az resource list  \
+--resource-group  rg-tydzien-13-final  \
+-o table

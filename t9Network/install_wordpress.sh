@@ -11,8 +11,6 @@ sudo cp -R * /var/www/html/
 
 service apache2 restart
 
-
-
 logger "Done installing WordPress; open /html/index.php to configure"
 
 
