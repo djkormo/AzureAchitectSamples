@@ -53,7 +53,7 @@ done
 # dodanie usługi Recovery Vault Service 
 az backup vault create --resource-group rg-tydzien-13-final \
     --name myRecoveryServicesVaultforCanadaVMs \
-    --location canadacentral
+    --location canadaeast
 
 
 az backup policy show --name DefaultPolicy  \

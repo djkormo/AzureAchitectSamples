@@ -29,6 +29,12 @@ chmod a+x -R /var/www/html/
 
 # https://docs.microsoft.com/en-us/azure/backup/backup-azure-linux-app-consistent
 
+if [ ! -d "/etc/azure" ]; then
+  # Control will enter here if /etc/azure doesn't exist.
+  mkdir /etc/azure
+fi
+
+
 wget https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/VMSnapshotScriptPluginConfig.json 
 cp VMSnapshotScriptPluginConfig.json /etc/azure
 chmod 600 /etc/azure/azure/VMSnapshotScriptPluginConfig.json
