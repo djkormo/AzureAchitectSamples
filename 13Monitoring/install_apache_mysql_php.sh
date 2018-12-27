@@ -40,7 +40,7 @@ cd
 
 if [ ! -d "/etc/azure" ]; then
   # Control will enter here if /etc/azure doesn't exist.
-  mkdir /etc/azure
+  mkdir /etc/azure/
 fi
 
 
