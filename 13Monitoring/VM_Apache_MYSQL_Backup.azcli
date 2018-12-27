@@ -50,16 +50,22 @@ az vm extension set \
   --settings '{"fileUris": ["https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/install_apache_mysql_php.sh"],"commandToExecute": "./install_apache_mysql_php.sh"}'
 done
 
-# dodanie usługi Recovery Vault Service 
+# dodanie usługi Recovery Vault Service - w sparowanej lokalizacji East Canada
 az backup vault create --resource-group rg-tydzien-13-final \
     --name myRecoveryServicesVaultforCanadaVMs \
-    --location canadaeast
+    --location canadacentral
 
+az backup vault backup-properties show  --name myRecoveryServicesVaultforCanadaVMs \
+                                      --resource-group rg-tydzien-13-final
+
+az backup vault backup-properties set --backup-storage-redundancy GeoRedundant \
+                                      --name myRecoveryServicesVaultforCanadaVMs \
+                                      --resource-group rg-tydzien-13-final
 
 az backup policy show --name DefaultPolicy  \
 --resource-group rg-tydzien-13-final \
---vault-name myRecoveryServicesVaultforCanadaVMs
-
+--vault-name myRecoveryServicesVaultforCanadaVMs \
+-o tsv
 
 # uzupełnienie maszyn o VM Backup
 for i in `seq 1 2`; do
@@ -183,11 +189,11 @@ az storage account delete \
 
 az disk list  --resource-group  rg-tydzien-13-final  -o table
 
-az configure --defaults location=northeurope
+az configure --defaults location=canadaeast
 
 # utworzenie maszyn z odtworzonego obrazu 
 # nowa RG
-az group create --name rg-tydzien-13-final-restore --location  northeurope
+az group create --name rg-tydzien-13-final-restore --location  canadaeast
 # nowa siec
 az network vnet create -g rg-tydzien-13-final-restore -n VNET-VM-13 --address-prefix 10.1.0.0/16 \
                             --subnet-name SUBNET-VM --subnet-prefix 10.1.0.0/24
