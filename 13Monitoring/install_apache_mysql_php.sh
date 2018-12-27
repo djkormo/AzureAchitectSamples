@@ -18,6 +18,15 @@ apt-get -y install mc lynx
 # put main page on WebSite
 echo "Done"
 
+cd 
+
+if [ ! -d "install" ]; then
+  # Control will enter here if /etc/azure doesn't exist.
+  mkdir install
+fi
+
+cd install 
+
 git clone https://github.com/djkormo/simple-chess-ai
  
 # copy content to apache root directory
