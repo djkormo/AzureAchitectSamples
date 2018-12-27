@@ -45,14 +45,14 @@ fi
 
 
 wget https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/VMSnapshotScriptPluginConfig.json 
-cp VMSnapshotScriptPluginConfig.json /etc/azure
+cp VMSnapshotScriptPluginConfig.json /etc/azure/
 chmod 600 /etc/azure/VMSnapshotScriptPluginConfig.json
 
 wget https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/post-script.sh
-cp post-script.sh /etc/azure
+cp post-script.sh /etc/azure/
 chmod 700 /etc/azure/post-script.sh
 
 wget https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/pre-script.sh
-cp pre-script.sh /etc/azure
+cp pre-script.sh /etc/azure/
 chmod 700 /etc/azure/pre-script.sh
 
