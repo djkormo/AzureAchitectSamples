@@ -1,7 +1,7 @@
 {
     "pluginName" : "ScriptRunner",
-    "preScriptLocation" : "",
-    "postScriptLocation" : "",
+    "preScriptLocation" : "/etc/azure/pre-script.sh",
+    "postScriptLocation" : "/etc/azure/post-script.sh",
     "preScriptParams" : ["", ""],
     "postScriptParams" : ["", ""],
     "preScriptNoOfRetries" : 0,

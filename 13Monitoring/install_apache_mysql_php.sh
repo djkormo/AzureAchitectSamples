@@ -23,3 +23,21 @@ git clone https://github.com/djkormo/simple-chess-ai
 # copy content to apache root directory
 cd simple-chess-ai && cp -R .  /var/www/html/ && cd .. && rm -r  simple-chess-ai/
 chmod a+x -R /var/www/html/
+
+
+# installing framework for consistent backup
+
+# https://docs.microsoft.com/en-us/azure/backup/backup-azure-linux-app-consistent
+
+wget https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/VMSnapshotScriptPluginConfig.json 
+cp VMSnapshotScriptPluginConfig.json /etc/azure
+chmod 600 /etc/azure/azure/VMSnapshotScriptPluginConfig.json
+
+wget https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/post-script.sh
+cp post-script.sh /etc/azure
+chmod 700 /etc/azure/azure/post-script.sh
+
+wget https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/pre-script.sh
+cp pre-script.sh /etc/azure
+chmod 700 /etc/azure/azure/pre-script.sh
+
