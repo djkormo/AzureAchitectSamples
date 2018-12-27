@@ -39,6 +39,17 @@ for i in `seq 1 2`; do
 
 done
 
+# instalacja oprogramowania na VM - działa na razie tylko z poziomu Cloud  Shell
+
+for i in `seq 1 2`; do
+az vm extension set \
+  --resource-group rg-tydzien-13-final \
+  --vm-name myapachemysql$i \
+  --name customScript \
+  --publisher Microsoft.Azure.Extensions \
+  --settings '{"fileUris": ["https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/install_apache_mysql_php.sh"],"commandToExecute": "./install_apache_mysql_php.sh"}'
+done
+
 # dodanie usługi Recovery Vault Service 
 az backup vault create --resource-group rg-tydzien-13-final \
     --name myRecoveryServicesVaultforCanadaVMs \
@@ -83,9 +94,18 @@ az backup job list \
     --status  Completed  
     
 
+## RESTORING VM 
+
+# na podstawie https://docs.microsoft.com/en-us/azure/backup/tutorial-restore-disk
+
+# utworzenie konta magazynowego dla odzyskanych obrazów maszyn wirtualnych
+az storage account create \
+    --resource-group rg-tydzien-13-final \
+    --name mystaccforcanadianvms \
+    --sku Standard_LRS
 
 # lista utworzonych punktów odzysku, po zakonczeniu operacji backup
-
+# odtworzenie z punktow odpowidnich maszych
 for i in `seq 1 2`; do
 echo $i
 az backup recoverypoint list \
@@ -95,37 +115,28 @@ az backup recoverypoint list \
     --item-name myapachemysql$i \
     --query [0].name \
     --output tsv
-   
-done
 
-
-## RESTORING VM 
-
-# na podstawie https://docs.microsoft.com/en-us/azure/backup/tutorial-restore-disk
-
-# utworzenie konta magazynowego 
-az storage account create \
+  export rpname=$(az backup recoverypoint list \
     --resource-group rg-tydzien-13-final \
-    --name mystaccforcanadianvms \
-    --sku Standard_LRS
-
+    --vault-name myRecoveryServicesVaultforCanadaVMs \
+    --container-name myapachemysql$i \
+    --item-name myapachemysql$i \
+    --query [0].name \
+    --output tsv) 
+echo $rpname
 
 # odtworzenie dysku VM 
-az backup restore restore-disks \
-    --resource-group rg-tydzien-13-final \
-    --vault-name myRecoveryServicesVaultforCanadaVMs \
-    --container-name myapachemysql1 \
-    --item-name myapachemysql1 \
-    --storage-account mystaccforcanadianvms \
-    --rp-name 68961133380206
 
 az backup restore restore-disks \
     --resource-group rg-tydzien-13-final \
     --vault-name myRecoveryServicesVaultforCanadaVMs \
-    --container-name myapachemysql2 \
-    --item-name myapachemysql2 \
+    --container-name myapachemysql$i \
+    --item-name myapachemysql$i \
     --storage-account mystaccforcanadianvms \
-    --rp-name 70109033753712
+    --rp-name  $rpname
+
+done
+
 
 
 # monitorowanie statusu  dla operacji Restore
@@ -146,45 +157,29 @@ export AZURE_STORAGE_CONNECTION_STRING=$( az storage account show-connection-str
     --name mystaccforcanadianvms )
 
 echo $AZURE_STORAGE_CONNECTION_STRING
-# az storage container list -o tsv 
-#az storage container list --query [0].name -o tsv  --num-results 2
-#az storage container list --help
 
-# obraz pierwszej maszyny VM
-container1=$(az storage container list --query [0].name -o tsv   --num-results 10)
-blob1=$(az storage blob list --container-name $container1 --query [0].name -o tsv --num-results 1 --prefix myapachemysql)
-uri1=$(az storage blob url --container-name $container1 --name $blob1 -o tsv)
+# wszystkie poniższe opeacje  az storage korzystają ze zmiennej $AZURE_STORAGE_CONNECTION_STRING
 
+for i in `seq 1 2`; do
+    # for container list  starting from 0
+    j=$((i-1))
+    export container=$(az storage container list --query [$j].name -o tsv   --num-results 10)
+    export blob=$(az storage blob list --container-name $container --query [0].name -o tsv --num-results 1 --prefix myapachemysql)
+    export uri=$(az storage blob url --container-name $container --name $blob -o tsv)
+    echo $uri
 
-##az storage blob list --container-name $container1 -o tsv --num-results 10 --query [0].name 
-#az storage blob list --help 
-echo $container1 
-echo $blob1 
-echo $uri1 
-
-# obraz drugiej maszyny VM
-container2=$(az storage container list --query [1].name -o tsv --num-results 10)
-blob2=$(az storage blob list --container-name $container2 --query [0].name -o tsv --num-results 1 --prefix myapachemysql)
-uri2=$(az storage blob url --container-name $container2 --name $blob2 -o tsv)
-
-echo $container2
-echo $blob2
-echo $uri2
-
-echo "$uri1"
-# az disk create --help 
-az disk create \
+    az disk create \
     --resource-group rg-tydzien-13-final \
-    --name myVMRestoredDisk1 \
+    --name myvmrestoreddisk$i \
     --sku Standard_LRS \
-    --source $uri1
+    --source $uri
 
-echo "$uri2"
-az disk create \
+done 
+
+# skasowanie niepotrzebnego konta magazynowego
+az storage account delete \
     --resource-group rg-tydzien-13-final \
-    --name myVMRestoredDisk2 \
-     --sku Standard_LRS \
-    --source $uri2
+    --name mystaccforcanadianvms
 
 az disk list  --resource-group  rg-tydzien-13-final  -o table
 
@@ -207,7 +202,7 @@ az vm availability-set create \
 
 # odtworzenie VM z odtworzonych obrazów
 
-export managedDiskId=$(az disk show --name myVMRestoredDisk1 --resource-group rg-tydzien-13-final --query [id] -o tsv)
+export managedDiskId=$(az disk show --name myvmrestoreddisk1 --resource-group rg-tydzien-13-final --query [id] -o tsv)
 echo $managedDiskId
 
 az vm create \
