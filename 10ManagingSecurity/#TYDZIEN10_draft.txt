@@ -1,0 +1,270 @@
+A tak konkretnie:
+1.	Jakie us³ugi wykorzystasz i dlaczego? Jakich nie wykorzystasz i gdzie? B¹dŸ pragmatyczny.
+
+Kontroler domeny AD po stronie on-premise wraz z AD Connect po stronie Azure.  Has³a proponujê synchronizowaæ tylko w jedn¹ stronê. Po stronie Azure trzymaæ tylko hasze hase³.
+Synchronizacja do Azure tylko dla dedykowanych w AD grup.
+
+
+2.	Jakie polityki logowania (jak MFA czy inne) mo¿esz u¿yæ by ca³y proces uczyniæ bezpieczniejszym? Zobacz, co faktycznie jest dostêpne, oceñ pod k¹tem przydatnoœci i wygody korzystania. 
+
+
+Polityka  hase³ dla u¿ytkowników loguj¹cych siê po stronie on-premise. Dotyczy wymuszenia czêstotliwoœci zmiany,  si³y hase³, blokady poprzednich hase³ na podstawie historii.
+Blokada konta po x nieudanych  logowaniach.
+Dla klientów loguj¹cych przez internet siê poœwiadczeniami z AD/AAD nale¿y wymusiæ MFA. To najprostszy sposób na blokadê mo¿liwoœci kradzie¿y has³a.
+Wszystkie pozosta³e has³o i dane wra¿liwe po stronie Azure powinny byæ utrzymywane w us³udze Key Vault.
+
+3.	Jakich us³ug bezpieczeñstwa chcia³byœ w³¹czyæ i w jakim zakresie by to wszystko dzia³a³o w dobrze znany sposób?
+
+Wdro¿enia zmian infrastruktury i zmiany kodu aplikacji nie powinny byæ wykonywane na kontach osobistych. Nale¿y wykorzystaæ  wy³¹cznie konta techniczne typu Service Principal.
+Us³ugi powinny posiadaæ jedynie niezbêdne uprawnienia.
+
+Przyk³adem jest us³uga Azure Kubernetes Services (AKS), która  ma uprawnienia service principala, z którym jest tworzona. Dostêp do repozytorium obrazów kontenerowych Azure Container Registry (ACR) wymaga jedynie uprawiena reader na poziomie us³ugi  ACR a nie np. uprawnienia reader na poziomie ca³êj subskrypcji.
+
+Wszystkie klucze kont magazynowych powinny byæ cyklicznie zmieniane. 
+Dyski maszyn wirtualnych powinny byæ szyfrowane. Klucze szyfruj¹ce powinny byæ trzymane w KV. Dobr¹ praktyk¹ jest trzymanie najbardzoej newralgicznych  informacji offsite. Klasyczka koperka zamkniêta gdzieœ w sejfie poza infrastrastruktur¹ organizacji.
+Bazy danych Azure Sql powinny korzystaæ z takich us³ug jak TDE, Always Encrypted, Data Masking,  Row Level Security 
+
+
+
+4.  Jakie aspekty, zwi¹zane z to¿samoœci¹ i w jaki sposób bêdzie monitorowa³?
+
+Ka¿da aplikacja powinna pisaæ do Azure Log Analytics.
+Dotyczy to równie¿ maszyn wirtualnych.
+
+Dodatkowo nale¿y wykorzystaæ Network Watcher
+
+
+5.  policz, ile to wszystko bêdzie Ciê kosztowa³o :) 
+
+
+Na podstawie 
+
+https://azure.microsoft.com/en-us/pricing/calculator/
+
+
+Microsoft Azure Estimate				
+Service type	Custom name	Region	Description	Estimated Cost
+Key Vault		North Europe	Operacje/miesi¹c: 0, zaawansowane operacje/miesi¹c: 0, odnowienia/miesi¹c: 100, klucze chronione/miesi¹c: 0, zaawansowane klucze chronione/miesi¹c: 0	$300,00
+Azure Active Directory B2C			U¿ytkownicy: 50 000, uwierzytelnienia: 100 000, uwierzytelnienia: 100 000	$3 140,00
+Key Vault		North Europe	Operacje/miesi¹c: 100000, zaawansowane operacje/miesi¹c: 0, odnowienia/miesi¹c: 1, klucze chronione/miesi¹c: 0, zaawansowane klucze chronione/miesi¹c: 0	$3,30
+Azure Active Directory		West US	Warstwa: Premium P1, model rozliczania us³ugi MFA: per-user, u¿ytkownicy us³ugi MFA: 2000, obiekty katalogu: 25001-100000, 0 Hours	$14 800,00
+Support			Support	$0,00
+			Licensing Program	Microsoft Online Services Program (MOSP)
+			Monthly Total	$18 243,30
+			Annual Total	$218 919,60
+				
+Disclaimer				
+All prices shown are in US Dollar ($). This is a summary estimate, not a quote. For up to date pricing information please visit https://azure.microsoft.com/pricing/calculator/				
+This estimate was created at 12/28/2018 6:50:58 PM UTC.				
+				
+
+
+
+---------------------------
+
+
+
+
+--------------------------
+
+
+
+
+#TYDZIEÑ10.1
+Ja za³o¿y³em konserwatywn¹ organizacjê, a wiêc tak¹, która migracjê do chmury bêdzie robiæ powoli.
+A wiêc w dalszym ci¹gu wiêkszoœæ systemów bêdzie on premise, ale pojawiaæ siê bêdê stopniowo aplikacje w chmurze. Taka hybryda wymaga AD dostêpnego on i off premise.
+Pragmatycznym rozwi¹zaniem bêdzie Azure AD Connect w wariancie PHS. W efekcie aplikacji wdro¿one do chmury bêd¹ mog³y korzystaæ z dobrodziejstwa AD (grupy zarz¹dzanie itd.), nowoczesnych protoko³ów uwierzytelniania (Open ID Connect, OAuth) , a integracja ta bêdzie ³atwa.
+Gdyby z jakiegoœ powodu organizacja nie mog³a zaakceptowaæ przechowywania hashy w chmurze, wtedy proponowa³bym Passthrough.
+
+Czêsto organizacje wspó³pracuj¹ z innymi, dlatego przydatne mog³oby byæ Azure B2B.
+
+Pracuj¹c kiedyœ w organizacji nastawionej na B2B mogê powiedzieæ, ¿e pocz¹tkowo Azure B2C nie by³by przydatny, bowiem takie organizacje do tej pory nie by³y nastawione na klienta koñcowego. Powoli siê to zmienia, wiêc mo¿na sobie wyobraziæ, ¿e to rozwi¹zanie bêdzie stawaæ siê co raz bardziej popularne.
+
+Poniewa¿ ww. organizacje powszechnie u¿ywaj¹ VPNa, dlatego w powy¿szym scenariuszu nie widzê sensu stosowania Azure Aplication Proxy. Oczekiwa³bym raczej w perspektywie kilku lat przepisania aplikacji opartych na SAMLu itp. do chmury. Pododbnie ADDS.
+
+#TYDZIEÑ10.2
+Polityka hase³, ale to w du¿ych organizacjach jest standard.
+W przypadku aplikacji chmurowych przechowuj¹cych poufne lub tajne informacji, stosowa³bym MFA. Mo¿e tak¿e dla niektórych ról (admin). Nie stosowa³bym tego dla wszystkich, bo jest to uci¹¿liwe.
+Keyvault do przechowywania API keys, db login/pwd itd.
+
+#TYDZIEÑ10.3
+W powy¿szym scenariuszu organizacjê staæ by by³o ?? a Azure PIM.
+
+#TYDZIEÑ10.4
+Azure AD Monitor – alerty bezpieczeñœtwa, raporty aktywnoœci itd.
+Network Watcher
+
+
+
+
+#TYDZIEN10.1
+a. Azure AD + AD Connect –jeœli ju¿ w³¹czysz synchronoizacjê hash’y to tylko z on-prem do chmury a nie w obu kierunkach (ja tak przynajmnie uwa¿am :)).
+b. Mo¿esz u¿yæ ADFS do uwierzytelniania w lokalnym AD jeœli np. nie chcesz synchronizowaæ hash’y,
+c. MFA dla ludzi z wysokimi uprawnianiami. Jako zasadê z on-prem AD zadbaj aby mieæ jednego usera bez MFA z bardzo d³ugim has³em które „zamkniesz” w sejfie. Historia pokazuje (ostatni miesi¹c) ¿e MFA te¿ pada a na takie sytuacje trzeba mieæ jakiœ backdoor. Oczywiœcie monitorujesz wykorzystanie tego konta i jeœli w jakimkolwiek przypadku przy dzia³aj¹cym MFA zostanie ono wykorzystane raportuje INC.
+d. PIM – sprawdŸ jaki poziom Azure Ad posiadasz. Dla PIM wymagany jest min. Azure AD Premium P2 lub Enterprise Mobility + Security E5.
+e. KeyVault – tworzymy i nadajemy odpowiednie uprawnienia dla odpowiednich ludzi i aplikacji. Pamiêtaj ¿eby odpowiednio przejrzeæ polityki. Niestety s¹ one czasem mandatory by uruchomiæ us³ugê lub np. zrobiæ backup zaszyfrowanej maszyny. Zdefiniuj odpowiednie uprawnienia per funkcja usera.
+f. Jak ju¿ masz keyValut to mo¿na podejœæ do szyfrowania dysków VM’ek z u¿yciem Extension. Nastaw siê na to ¿e raz na jakiœ czas maszyna taka nie wstanie. Czemu? Bo np. agent nie mo¿e dobiæ siê do keyvalut i podstawiæ secretu do odszyfrowania dysku. Utwórz procedurê odzyskiwania maszyn ??
+g. Na samej subskrypcji nadaj odpowiednie uprawniania do u¿ytkowników lub grup.
+h. W Azure AD ucinasz max co siê da i czekasz a¿ ktoœ siê odezwie ¿e nie dzia³a. Dzia³aj na zasadzie firewall w³¹cz tylko to co bêdzie ci potrzebne na pewno, resztê wy³¹cz.
+i. Nad B2B czy B2C zastanawia³bym siê dopiero wtedy gdy takie bêdzie wymaganie aplikacji. Poniewa¿ jest to aplikacja globalna zapewne ju¿ ono istnieje wiêc nale¿y zdecydowaæ który z providerów jest dla nas zaufany a który nie. Na pewni nie zezwalam wszystkim userom na zapraszanie userów z innych Azure AD - t¹ opcjê pozostawiam tylko dla adminów Azure Ad lub UAM Team.
+j. Nie skorzystam z Azure ADDS. Nie ograniczajmy siê na samym pocz¹tku. Jeœli mam ju¿ AD to skorzystam z niego a nie bêdê tworzy³ nowego zw³aszcza ¿e nie mogê zrobiæ z Azure ADDS trusta.
+#TYDZIEN10.2
+a. Polityka hase³. Nie ustawiamy zbyt krótkiego a has³a s³ownikowe ubijamy.
+b. Uwierzytelnianie przy u¿yciu ADFS a nastêpnie w zale¿noœci ile mamy kasiory albo przez apk (potwierdzenie kodu, pisanie kodu czy zadzwoñ na mój umer telefonu) albo przez dedykowany fizyczny token RSA.
+#TYDZIEN10.3
+a. PIM maj¹c odpowiedni poziom Azure AD
+b. Conditional access ale nie dla wszystkich. Pamiêtaæ nale¿y ¿e cloud nigdy nie œpi i w³¹czenie mo¿liwoœci logowania dla grup wsparcia mo¿e przysporzyæ nam nie lada k³opotów w przypadku awarii ??
+c. MFA dla adminów. I ci¹g³e weryfikowanie czy czasem nie ma jakiegoœ odstêpstwa.
+d. SPN pod automaty, aplikacje
+e. Nadanie to¿samoœci dla aplikacji jeœli to mo¿liwe a nie per user.
+f. Keyvalut do szyfrowania dysków vm’ek, storageaccount , trzymania hase³ w bezpieczny sposób, certyfikaty dla aplikacji itp.
+g. W³¹czenie firewall na dostêpie do Storage Account
+h. Log analytics o odpowiednie solution a nastêpnie zaprzêgniêcie AI do wykrywania anomalii.
+#TYDZIEN10.4
+a. Log Analytics, Network Watcher, TAP, Azure security Center and AI
+b. Logi z aplikacji, vm'ek do Azure Log Analytics
+
+Rys1. Azure AD Free w przypadku gdy chcemy wykorzystaæ PIM wdra¿amy Azure AD P2 (rys2)
+
+
+#TYDZIEN10.1
+To zacznê od za³o¿eñ na jakich bêdê bazowa³ i które wydaj¹ mi siê istotne:
+- migracja bêdzie stopniowa, tak¿e przez pewien okres czasu muszê mieæ 2 DC
+- firma dla której robimy migracje to jakiœ du¿y biznes e-commerce (ok. 500 pracowników)
+
+1. Jakie us³ugi wykorzystasz i dlaczego? Jakich nie wykorzystasz i gdzie? B¹dŸ pragmatyczny.
+
+Wykorzystam:
+- Azure Active Directory & AD Connect – z racji na to, ¿e podczas migracji bêdziemy mieæ 2 DC, a chcemy aby nasi pracownicy mogli siê uwierzytelniaæ z us³ugami chmurowymi, potrzebowaæ bêdziemy Azure AD wraz z AD Connectem na potrzeby synchronizacji us³ug AD.
+- Azure AD Connect Health – na pewno na pocz¹tku i w trakcie migracji, aby zwiêkszyæ mo¿liwoœci monitorowania i wgl¹du w on-premowe jednostki które bêd¹ mia³y dostêp do Office 365, czy uwierzytelnia³y z AAD. Jest to rekomendowane w dokumentacji.
+- App Registration – nie wiem na ile to osobna us³uga a na ile czêœæ AAD, ale na pewno wykorzystam j¹ w celach uwierzytelniania ró¿nych aplikacji dzia³aj¹cych w obrêbie moich systemów
+- Azure Key Vault – jeden z elementów migracji NIE lift-and-shift, na pewno bêdê chcia³ u¿yæ tej us³ugi do przechowywania kluczy, hase³ i certyfikatów u¿ywanych przez migrowane systemy
+- Azure AD B2C – z racji na to ¿e mamy wielu klientów B2C dobrze bêdzie mieæ us³ugê która pozwoli np. na korzystanie z naszego sklepu klientom za pomoc¹ ich np. kont Facebookowych
+- Azure AD PIM – zdecydowanie tak, nie jestem w tej dziedzinie ekspertem, ale zawsze wydawa³o mi siê ¿e posiadanie takiej wiedzy i mo¿liwoœci dla administratora to coœ co musi byæ. Wiêc je¿eli nie bawimy siê w organizacje a jesteœmy powa¿n¹ firm¹, u¿ywam!
+- Azure AD Application Proxy – w trakcie migracji systemów on-prem które wymagaj¹ uwierzytelniania na tradycyjnych dla on-prem zasadach
+
+Nie wykorzystam:
+- Azure AD DS – z tego co rozumiem, jest to swego rodzaju alternatywa dla klasycznego Windows AD, wiêc o ile zak³adam ¿e na czas migracji utrzymuje AD w on-prem DC, to nie korzystam z tej us³ugi. Rozwa¿y³bym dopiero w momencie, gdy bêdê chcia³ wy³¹czyæ on-premowe DC. Bardzo proszê o feedback czy dobrze kombinujê ??
+
+2. Jakie polityki logowania (jak MFA czy inne) mo¿esz u¿yæ by ca³y proces uczyniæ bezpieczniejszym? Zobacz, co faktycznie jest dostêpne, oceñ pod k¹tem przydatnoœci i wygody korzystania.
+
+- MFA – u¿ycie tego wydaje mi siê trochê skomplikowane, ze wzglêdu na ró¿ne wersje (https://docs.microsoft.com/…/authe…/concept-mfa-whichversion) mam wra¿enie, ¿e potrzebujê obu: np. chce mieæ synchronizacjê z AAD dla hashy hase³, no ale tez na 100% bêdê mia³ jeszcze w trakcie migracji jakieœ apki wystawione przez IIS. Tak¿e po migracji opcja „MFA in the cloud”, ale w trakcie chyba ¿adna. Póki co nie uwzglêdniam tego w obliczeniach
+
+- Password protection – wygl¹da bardzo fajnie, minus taki ¿e wspieranie tego dla Windows Server AD jest obecnie w preview. Na pewno zdecydowa³bym siê na zastosowanie chmurowe, jest to jeden z ficzerów AAD.
+
+3. Jakich us³ug bezpieczeñstwa chcia³byœ w³¹czyæ i w jakim zakresie by to wszystko dzia³a³o w dobrze znany sposób?
+
+- Azure Security Center – tak naprawdê to chyba g³ównie ze wzglêdu na to, ¿e taka migracja to du¿y krok dla organizacji i zawsze lepiej siê dodatkowo zabezpieczyæ ni¿ nie. Mo¿emy coœ przeoczyæ lub przytrafi nam siê jakiœ inny losowy / niechciany wypadek, któremu mo¿emy w ten sposób zaradziæ (lub zwiêkszyæ prawdopodobieñstwo ¿e podejmiemy kroki).
+- Key Vault – nie chcê przechowywaæ kluczy, hase³ i certyfikatów w miejscach do których sam dodatkowo muszê zatroszczyæ siê o wszystkie aspekty bezpieczeñstwa, a Key Vault jest zintegrowany chyba z ka¿d¹ us³ug¹ z której do tej pory korzysta³em i dobrze siê sprawdza
+- ASG – migrujemy, wiêc pewnie na pocz¹tku bêdzie bardzo du¿o VM-ek, a to bardzo przystêpny sposób na blokowanie i zezwalanie na ruch pomiêdzy kolejnymi tierami aplikacji
+- enkrypcja – nie chcê tutaj jakoœ wchodziæ w szczegó³y, bo opcji jest wiele, ale bêdê siê stara³ znaleŸæ jakiœ z³oty œrodek (¿eby nie szyfrowaæ po kilka razy na ka¿dym z kroków)
+- Azure DdoS Protection – nie wiem, trochê za drogo jak na to na ile sam znam temat ?? póki co nie inwestujê, ale na pewno poruszy³bym temat z trochê bardziej zorientowanym gronie, czy jest to faktycznie warte swojej ceny
+
+4. Jakie aspekty, zwi¹zane z to¿samoœci¹ i w jaki sposób bêdzie monitorowa³?
+
+- Azure Monitor (AD activity logs)
+
+Wycena:
+Wycenia³em troche na oko, szczególnie Key Vault 
+
+
+
+
+
+#TYDZIEN10.1
+-RBAC- ró¿ni u¿ytkownicy maj¹ ró¿ne uprawnienia, grupy itd.
+
+-Azure Active Directory & AD Connect – tutaj wykorzystuje szeroko pojête Azure AD. Czêœæ moich us³ug ci¹gle wykorzystuje lokalne AD dlatego u¿ywam AD connecta. Dodatkowo wykorzystuje Appregistrations do tego, aby ka¿d¹ aplikacjê zarz¹dzaæ i nadawaæ dostêpy. Generuje te¿ klucz do ka¿dej aplikacji. Dodaje przez RBAC do resource groupy konkretn¹ aplikacjê. Nastêpnie w moim procesie CI/CD w serviceconnection umo¿liwiam pod³¹czenie siê dok³adnie do tej tylko resource groupy z t¹ aplikacj¹. Mam porz¹dek i nie mam tak, ¿e siê machnê ¿e test wrzucê na produkcjê.
+
+-Azure Key Vault – trzymam wszystkie certyfikaty, has³a itd. Mogê u¿yæ tego zarówno a aplikacjach jak i podczas Releaseowania. aplikacji, ¿eby w³aœciw¹ wartoœæ wrzuciæ dla danego œrodowiska.
+
+- Azure AD B2C – umo¿liwiam logowanie przez Facebooka itp. Super wygodne, wygrzane, bezpieczne.
+- Azure AD B2B – umo¿liwiam logowanie naszym partnerom. Super wygodne, wygrzane, bezpieczne.
+
+Nie korzystam z ADFS’a. Du¿o problemów jakoœ mia³em i tak z doœwiadczenia nie chcê :)
+
+#TYDZIEN10.2
+
+MFA dla Adminów i jakichœ wa¿niejszych person.
+W³¹czam te¿ polityki hase³: d³ugoœæ, znaki specjalne, login w haœle itd.
+
+#TYDZIEN10.3
+
+NSG/ASG – zabezpieczam ruch itp. udostêpniam tylko kilka portów z aplikacjami.
+- Key Vault – jak wy¿ej
+Shared Access Signatures - dostêp do zasobów w storage accounts.
+#TYDZIEN10.4
+
+Bêdê u¿ywam Azure Monitor . Byæ mo¿e na wersji premium bêdê móg³ podlg¹daæ
+
+Koszty. Na póŸniej. Spiesze siê do kolejnej pracy domowej bo ciekawsza
+
+
+
+
+
+#tydzien10.1
+* Azure AD Connect wraz z Password writeback - bêdziemy synchronizowaæ nasze AD na pocz¹tku. Funkcja password writeback w AD Connect pozwala na synchronizacje hase³ pomiêdzy chmur¹ a naszym Directory on-premise. Wszystko zale¿y jak daleko potoczy siê migracja, bo pewnie za jednym zamachem siê nie uda.
+* Azure AD Domain services - w rozwi¹zaniu hybrydowym. Jakoœ nie potrafiê sobie wyobraziæ (bez doœwiadczenia) ¿e od razu mamy wszystko w chmure.
+* Azure B2C - do logowania za pomoca FB badz gmaila dla nowych uzytkowników.
+
+** Czego bym nie u¿y³ (na tym etapie? - jak pisa³eœ mo¿liwoœci jest wiele mo¿liwoœci)
+* Azure B2B - ¿adna inna organizacja nie bêdzie siê na tym etapie pod³¹czaæ do naszych us³ug.
+
+#tydzien10.2
+* Azure AD SSPR (self service password rest) - aby wymusiæ zmiane hase³.
+* Azure MFA (multi-factor authentication) - uprocz dla u¿ytkownikow to tak¿e dla wszystkich Administratorów.
+* Azure PIM - do dodatkowej walidacji w momencie jezeli u¿ytkownik nie przeszed³ (pomin¹³) etapu MFA.
+
+#tydzien10.3
+* Azure Security Center - zdecydowanie aby podnieœæ bezpieczeñtwo
+* Azure DDoS protection
+* Azure KeyVault
+* Szyfrowanie danych
+* Dobrze skonfigurowane NSG
+* Azure Firewall
+
+#tydzien10.4
+* Azure AD Identity Protection - szeroko pojêta identyfikacja to¿samoœci. Do wykrywania luk zabezpieczeñ oraz monitorowania i identyfikowania podejrzanych zdarzeñ o podwy¿szonym ryzku. Kontrola nad u¿ytkownikami którzy nie wykonali MFA, dodatkowe powiadomienia np. przez mail, logowanie, ogólny monitoring poniewa¿ do jest osobna us³ug do monitorowania naszego AD.
+* Wszystko co zwi¹zane z raportami AD, czyli SSPR, MFA, etc. - https://docs.microsoft.com/…/authentic…/howto-sspr-reporting
+
+
+
+#TYDZIEN10.1
+Ciekawym punktem startu jest poradnik migracji do Azure AD - https://docs.microsoft.com/…/active-directory-deployment-ch…
+
+* KeyVault - przyda siê do przechowywania wszelkiego rodzaju poœwiadczeñ wykorzystywanych przez aplikacje - programista "nie dotyka" poœwiadczeñ - skrypt tworz¹cy zasoby mo¿e od razu umieszczaæ sekrety w KV
+
+* Azure AD + password hash sync - je¿eli nie ma przeciwwskazañ od osób zajmuj¹cych siê bezpieczeñstwem, zsynchronizowa³bym hashe hase³ do chmury, w przeciwnym wypadku trzeba bêdzie wykorzystaæ pass-through authentication. Warto te¿ wykorzystaæ AD wszêdzie, gdzie do tej pory istnia³y oddzielne poœwiadczenia dla u¿ytkowników - SQL Server, CRMy typu Salesforce, Jira. Dodatkowo AD Premium pozwala na personalizacjê procesu logowania - fajnie to wykorzystaæ - mo¿e biznes widz¹c swoje logo na ekranie logowania przychylniej spojrzy na koszty :)
+
+* Azure AD B2C - mo¿na by je wykorzystaæ jako bazê u¿ytkowników w platformie ecommerce ale trzeba siê dobrze zastanowiæ czy koszt zast¹pienia mechanizmu wbudowanego w sklep nie bêdzie za wysoki. Najwiêkszym problemem jest migracja hase³ - https://docs.microsoft.com/…/active-directory-b2c-user-migr… - musielibyœmy dysponowaæ has³ami w formie mo¿liwej do odszyfrowania (a jako porz¹dna firma nie mamy czegoœ takiego) lub zrestartowaæ has³a u¿ytkowników (podejrzewam, ¿e te¿ nie mo¿emy sobie na to pozwoliæ ze wzglêdu na UX) - myœlê, ¿e w naszej sytuacji trzeba by utworzyæ w³asny mechanizm, który stopniowo bêdzie migrowa³ u¿ytkowników w trakcie logowania - aczkolwiek zajmie to sporo czasu i wymaga sporo dodatkowej pracy programistycznej. B2C bardzo dobrze sprawdzi siê natomiast, gdy tworzymy coœ nowego i nie mamy jeszcze bazy u¿ytkowników.
+
+* Azure AD B2B - do wykorzystania gdy bêdzie potrzeba przekazania np. zewnêtrznym konsultantom dostêpu do czêœci zasobów firmy
+
+* Azure AD Application Proxy - dobry pomys³ je¿eli mamy jakieœ aplikacje w on-prem, mo¿emy je wtedy udostêpniæ online dla np. pracuj¹cych zdalnie, bez potrzeby korzystania z VPN.
+
+#TYDZIEN10.2
+* MFA - obowi¹zkowo dla wszystkich u¿ytkowników w firmowym AD.
+
+* Azure AD smart lockout - po wyjœciu us³ugi z preview, warto bêdzie to w³¹czyæ skoro logowanie do AD mo¿e siê pojawiæ w kontekœcie spoza intranetu/VPN.
+
+* Conditional Access - mo¿na wykorzystaæ np. do ograniczenia dostêpu do aplikacji szczególnie wra¿liwych do wy³¹cznie urz¹dzeñ. Mo¿na przemyœleæ wy³¹cznie MFA dla logowañ z sieci firmowej lub blokadê logowañ z poza krajów, gdzie dzia³a firma.
+
+#TYDZIEN10.3
+Security Center nadzoruje aspekty bezpieczeñstwa ca³ego œrodowiska. Azure ID Identity Protection do ochrony danych firmy.
+
+#TYDZIEN10.4
+Logi z AD trafiaj¹ do OMS, poza monitoringiem przez us³ugi typu Security Center mo¿emy dziêki temu zdefiniowaæ w³asne alerty.
+
+#TYDZIEN10.5
+Wyliczenie w za³¹czniku:
+Za³o¿enia:
+Firma AD - 5000 userów - plan P1 powinien spe³niæ wymagania
+Sklep (B2C): 10 000 000 klientow, 15 000 000 logowañ
+KeyVault - 10 milionów operacji na zwky³ych kluczach, 100 kluczy sprzêtowych, 5 odnowieñ certyfikatu
+
+Dodatkowo
+* kilkadziesi¹t € za przechowywanie logów z AD
+* 21085€ za Azure Information Protection P2
+
+Pod wzglêdem kosztów warto przemyœleæ migracje firmy do Office 365, 5000 userów to 98500€ (E3) - 172000€ miesiêcznie to du¿o ale z tego co rozumiem mamy w cenie Azure AD, pakiet Office dla pracowników, Azure Information Protection i pocztê której utrzymanie przy takiej skali te¿ pewnie nie jest tanie (a w AZ nie ma typowej us³ugi hostowania poczty)
