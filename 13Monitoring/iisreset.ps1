@@ -1,1 +1,1 @@
-IISReset /RESTART
+Start-Process "iisreset.exe  /RESTART" -NoNewWindow -Wait
