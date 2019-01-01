@@ -1,0 +1,1 @@
+IISReset.exe /RESTART
