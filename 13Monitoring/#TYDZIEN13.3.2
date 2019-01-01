@@ -2,14 +2,19 @@
 2)	Spróbuj za pomocą Azure Automation napisać skrypt, który przechodzi po wszystkich maszynach w ramach Azure i w każdej z nich restartuje serwer IIS wewnątrz maszyny.
 
 
-Na początku poszukałem i znalazłem skrypt, ktory uruchamia i zatrzymuje maszyny wirtualne.
+Na początku poszukałem i znalazłem skrypt, który uruchamia i zatrzymuje maszyny wirtualne.
+
+Dodałem możliwość uruchamiana skryptu za pomocą  Invoke-AzureRmVMRunCommand
 
 
 Postanowiłem zamiast Windows + IIS przetestować konfigurację Linux + Apache2
 
 Kod runbooka umieszczony na githubie
 
-Zaimportowałęm go, skompilowałem i uruchomiłem
+https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/Stop-Start-AzureVM.ps1
+
+
+Zaimportowałem go, skompilowałem i uruchomiłem
 
 Z poniższymi parametrami 
 	
@@ -26,11 +31,11 @@ AZUREVMLIST
 Skrypt do resetu "czegokolwiek" pobieram z mojego repozytorium na githubie.
 Skrypt resetujący apache2 umieściłem na:
 
-
+https://github.com/djkormo/AzureAchitectSamples/blob/master/13Monitoring/apache2reset.sh
 
 Plik jest parametrem wejściowym rozwiązania.
 
-Szkoda, że nie ma obsługi BASH, tylko Powershell, mam nadzieję, ze to przejściowy stan...
+Szkoda, że nie ma obsługi BASH, tylko Powershell, mam nadzieję, ze to przejściowy stan.
 
 
 
