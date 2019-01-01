@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountName": {
+      "value": "rgtydzien13automation"
+    },
+    "adminUsername": {
+      "value": "windowsadmin"
+    },
+    "adminPassword": {
+      "value": null
+    },
+    "dnsNameforLBIP": {
+      "value": "rgtydzien13automation"
+    },
+    "vmNamePrefix": {
+      "value": "myVMforAuto"
+    },
+    "imagePublisher": {
+      "value": "MicrosoftWindowsServer"
+    },
+    "imageOffer": {
+      "value": "WindowsServer"
+    },
+    "imageSKU": {
+      "value": "2012-R2-Datacenter"
+    },
+    "lbName": {
+      "value": "myLB"
+    },
+    "nicNamePrefix": {
+      "value": "nic"
+    },
+    "publicIPAddressName": {
+      "value": "myPublicIP"
+    },
+    "vnetName": {
+      "value": "myVNET"
+    },
+    "vmSize": {
+      "value": "Standard_D1_v2"
+    }
+  }
+}

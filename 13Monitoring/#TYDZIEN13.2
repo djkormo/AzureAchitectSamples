@@ -2,3 +2,45 @@
 Twoje rozwi¹zanie ju¿ poprawnie pracuje w chmurze, ale wypada³oby rozwa¿yæ strategiê kopii zapasowych oraz ew. replikacji do drugiego regionu.
 Za³ó¿my, ¿e Twoja aplikacja to rozwi¹zanie oparte o Apache oraz MySQL, wszystko pracuje sobie na maszynach wirtualnych w Canada Central i wykorzystuje Availability Set’s.
 Opisz, co trzeba by zrobiæ, by za pomoc¹ Azure Backup wykonywaæ spójny aplikacyjnie backup oraz replikê œrodowiska do drugiego regionu z RPO nie wiêkszym ni¿ 1 godzina. 
+
+
+
+
+Przygotowanie skryptów na utworzenie  
+a) dwóch maszyn wirtualnych z Ubuntu Linux w grupie wysokiej dostêpnoœci . Lokalizacja Kanada Centralna (Canada Central)
+
+Utworzona zostanie równie¿ sieæ wietualny i subnet, w którym zostan¹ umieszczone obie maszyny
+
+Uwaga, nale¿y zwróciæ uwagê na to, ¿e nie ka¿da wersja kernela linux obs³u¿y rozszerzenie ASR.
+
+https://docs.microsoft.com/en-us/azure/site-recovery/azure-to-azure-support-matrix#linux
+
+
+Inaczej podczas tworzenia repliki deployment skoñczy siê b³êdem:
+
+Error Message
+This version of mobility service doesn't support the operating system kernel version (4.15.0-1036-azure) running on the source machine. Please refer the list of operating systems supported by Azure Site Recovery : https://aka.ms/a2a_supported_linux_os_versions
+Recommendation
+Please refer to https://aka.ms/a2a_supported_linux_os_versions
+
+b) Uzupe³nienie maszycn wirtualnych o oprogramowanie.
+
+
+
+c) utworzenie w docelowej lokalizacji  wirtualnej sieci i dedykowanego subnetu, grupy wysokiej dostepnoœci.
+Jako lokalizacjê docelow¹ wybra³em Wschodnie USA (East US).
+
+
+
+
+
+
+
+
+
+Literatura
+
+https://docs.microsoft.com/en-us/azure/site-recovery/azure-to-azure-quickstart
+
+https://www.capside.com/labs/application-consistent-backup-azure-linux-vms/?fbclid=IwAR12Mp8EWONGyuWZA8nnF6boaJR0EkYQ2K-a0F6JmJd_D9C7ffbrOhEyea8
+

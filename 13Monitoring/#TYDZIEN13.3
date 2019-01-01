@@ -1,10 +1,203 @@
 13.3 Automation 
 Azure Automation z DSC to naprawdê bogate rozwi¹zanie. Daje spore mo¿liwoœci i pozwala na co najmniej kilka ciekawych scenariuszy. Spróbuj zbudowaæ dwa:
+
+
 1)	Spraw by twoja maszyna po utworzeniu mia³a zainstalowanego IIS z uruchomion¹ bazow¹ stron¹ HTML, która zostanie pobrana z dowolnego miejsca z publicznym endpointem
+
+
+
 2)	Spróbuj za pomoc¹ Azure Automation napisaæ skrypt, który przechodzi po wszystkich maszynach w ramach Azure i w ka¿dej z nich restartuje serwer IIS wewn¹trz maszyny.
 
 
 
+Literatura do Runbooks ..
+
+https://www.edx.org/course/automating-azure-workloads-2
+
+https://4sysops.com/archives/azure-automation-accounts-and-shared-resources/
+
+https://openedx.microsoft.com/asset-v1:Microsoft+AZURE210x+2016_T4+type@asset+block/Module_1_Automation_Labs_v1.0.pdf
+https://courses.edx.org/asset-v1:Microsoft+AZURE210x+3T2016+type@asset+block@Automation_Labs_v1.0.pdf
+
+
+
+Pe³ny kurs na openedx 
+
+
+https://openedx.microsoft.com/courses/course-v1:Microsoft+AZURE210x+2018_T1/courseware/
+
+
+Literatura do DSC
+
+
+Tutorial MS na pocz¹tek
+
+https://docs.microsoft.com/en-us/azure/automation/automation-dsc-getting-started
+
+
+https://microsoft.github.io/PartsUnlimited/iac/200.2x-IaCLabsM02DSC.html
+
+
+Warto siê zastanowaæ jak to zrobiæ na linuxie ...
+
+
+https://medium.com/singlestone/bootstrapping-linux-vms-with-dsc-in-azure-2145f2beb30
+
+
+
+
+Ad 1..
+
+Na postawie
+
 
 
 https://gist.github.com/BernieWhite/23522e76765d8fa88db7abb5f03086ce?fbclid=IwAR0CbRSy1jmOCuSJoJmDN8ufkhRZ0J7R6EV0AEsNVAEA4LZtGCcKTM6IbHQ
+
+
+Spakowania strona www  z szachami ....
+
+https://github.com/djkormo/simple-chess-ai/raw/master/simple-chess-ai.zip
+
+
+
+configuration webConfiguration
+{
+    param (
+        [Parameter(Mandatory = $False)]
+        [String]$websitePackageUri
+    )
+
+    Import-DscResource -ModuleName PSDesiredStateConfiguration
+    # Import-DscResource -ModuleName WebAdministration
+
+    Node 'localhost'
+    {
+        # Install IIS features
+        WindowsFeature WebServerRole {
+            Name   = "Web-Server"
+            Ensure = "Present"
+        }
+
+        WindowsFeature WebManagementService {
+            Name   = "Web-Mgmt-Service"
+            Ensure = "Present"
+        }
+
+        WindowsFeature ASPNet45 {
+            Name   = "Web-Asp-Net45"
+            Ensure = "Present"
+        }
+
+        WindowsFeature HTTPRedirection {
+            Name   = "Web-Http-Redirect"
+            Ensure = "Present"
+        }
+
+        WindowsFeature CustomLogging {
+            Name   = "Web-Custom-Logging"
+            Ensure = "Present"
+        }
+
+        WindowsFeature LogginTools {
+            Name   = "Web-Log-Libraries"
+            Ensure = "Present"
+        }
+
+        WindowsFeature RequestMonitor {
+            Name   = "Web-Request-Monitor"
+            Ensure = "Present"
+        }
+
+        WindowsFeature Tracing {
+            Name   = "Web-Http-Tracing"
+            Ensure = "Present"
+        }
+
+        WindowsFeature BasicAuthentication {
+            Name   = "Web-Basic-Auth"
+            Ensure = "Present"
+        }
+
+        WindowsFeature WindowsAuthentication {
+            Name   = "Web-Windows-Auth"
+            Ensure = "Present"
+        }
+
+        WindowsFeature ApplicationInitialization {
+            Name   = "Web-AppInit"
+            Ensure = "Present"
+        }
+
+        if (![String]::IsNullOrEmpty($websitePackageUri)) {
+
+            # Download and unpack the website into the default website
+            Script DeployWebPackage {
+                GetScript  = {@{Result = "DeployWebPackage"}}
+                TestScript = {
+                    return Test-Path -Path "C:\WebApp\Site.zip";
+                }
+                SetScript  = {
+
+                    if (!(Test-Path -Path "C:\WebApp")) {
+                        New-Item -Path "C:\WebApp" -ItemType Directory -Force | Out-Null;
+                    }
+
+                    $dest = "C:\WebApp\Site.zip" 
+
+                    if (Test-Path -Path "C:\inetpub\wwwroot") {
+                        Remove-Item -Path "C:\inetpub\wwwroot" -Force -Recurse -ErrorAction SilentlyContinue | Out-Null;
+                    }
+
+                    if (!(Test-Path -Path "C:\inetpub\wwwroot")) {
+                        New-Item -Path "C:\inetpub\wwwroot" -ItemType Directory -Force | Out-Null;
+                    }
+
+                    Invoke-WebRequest -Uri $using:websitePackageUri -OutFile $dest -UseBasicParsing;
+
+                    Expand-Archive -Path $dest -DestinationPath "C:\inetpub\wwwroot" -Force;
+                }
+                DependsOn  = "[WindowsFeature]WebServerRole"
+            }
+        }
+    }
+}
+
+
+
+Ad 2.
+
+
+Utworzenie dwóæh maszyn VM z IIS Windows 2012
+
+
+https://github.com/Azure/azure-quickstart-templates/tree/master/201-2-vms-loadbalancer-lbrules
+
+template
+
+https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-2-vms-loadbalancer-lbrules/azuredeploy.json
+
+paramateres
+
+https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-2-vms-loadbalancer-lbrules/azuredeploy.parameters.json
+
+
+
+az group deployment validate  -g rg-tydzien-13   \
+--template-uri  https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-2-vms-loadbalancer-lbrules/azuredeploy.json 
+
+az group deployment create -g rg-tydzien-13   \
+--template-uri  https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-2-vms-loadbalancer-lbrules/azuredeploy.json \
+--parameters https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-2-vms-loadbalancer-lbrules/azuredeploy.parameters.json 
+
+
+az group deployment create -g MyResourceGroup --template-file https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-2-vms-loadbalancer-lbrules/azuredeploy.json \
+                            --parameters https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-2-vms-loadbalancer-lbrules/azuredeploy.parameters.json 
+							
+							
+							
+
+
+
+
+

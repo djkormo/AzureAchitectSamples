@@ -1,0 +1,99 @@
+alias az='az.cmd'
+
+az configure --defaults location=canadacentral
+
+
+# utworzenie nowej RG w lokalizacji Canada Central
+az group create --name rg-tydzien-13-final --location  canadacentral
+# wdrożenia w domyslnej grupie 
+az configure --defaults  group=rg-tydzien-13-final
+# utworzenie sieci wirtualnej z podsiecia 
+az network vnet create -g rg-tydzien-13-final -n VNET-VM-13 --address-prefix 10.0.0.0/16 \
+                            --subnet-name SUBNET-VM-13 --subnet-prefix 10.0.0.0/24 \
+                            --location  canadacentral
+
+#  utworzenie zbioru wysokiej dostepnosci dla VM
+az vm availability-set create \
+    --resource-group rg-tydzien-13-final \
+    --name myApacheMysqlAvailabilitySet \
+    --platform-fault-domain-count 2 \
+    --platform-update-domain-count 2 \
+     --location  canadacentral
+
+# szukam nazwy obrazu dla Ubuntu  z kolumny urn
+
+# az vm image list -f Ubuntu --sku 14.04 --all -o table
+
+# utworzenie dwoch VM z Ubuntu  ramach tej samej Availabilty Set
+for i in `seq 1 2`; do
+   az vm create \
+     --resource-group rg-tydzien-13-final \
+     --name myapachemysql$i \
+     --availability-set myApacheMysqlAvailabilitySet \
+     --size Standard_A1_v2  \
+     --image Canonical:UbuntuServer:14.04.4-LTS:14.04.201808180 \
+     --vnet-name VNET-VM-13 \
+     --subnet SUBNET-VM-13 \
+     --admin-username azureuser \
+	 --admin-password Pa$$word2018.. \
+     --location canadacentral
+
+    az vm open-port --port 80 \
+    --resource-group rg-tydzien-13-final \
+    --name myapachemysql$i \
+    --priority 900
+
+done
+
+# instalacja oprogramowania na VM - działa na razie tylko z poziomu Azure Cloud Shell
+
+for i in `seq 1 2`; do
+az vm extension set \
+  --resource-group rg-tydzien-13-final \
+  --vm-name myapachemysql$i \
+  --name customScript \
+  --publisher Microsoft.Azure.Extensions \
+  --settings '{"fileUris": ["https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/install_apache_mysql_php.sh"],"commandToExecute": "./install_apache_mysql_php.sh"}'
+done
+
+
+
+az disk list  --resource-group  rg-tydzien-13-final  -o table
+
+az configure --defaults location=eastus
+
+# utworzenie maszyn z odtworzonego obrazu 
+# nowa RG
+az group create --name rg-tydzien-13-final-restore --location  eastus
+# nowa siec
+az network vnet create -g rg-tydzien-13-final-restore -n VNET-VM-13-restore --address-prefix 10.1.0.0/16 \
+                            --subnet-name SUBNET-VM-restore --subnet-prefix 10.1.0.0/24 \
+                            --location eastus
+
+#  utworzenie zbioru wysokiej dostepnosci dla VM
+# nowa grupa Availability Set 
+az vm availability-set create \
+    --resource-group rg-tydzien-13-final-restore \
+    --name myApacheMysqlAvailabilitySetRestore \
+    --platform-fault-domain-count 2 \
+    --platform-update-domain-count 2 \
+    --location eastus
+ 
+
+# sprzatanie po  wdrożeniu 
+
+# usunięcie całej RG
+az group delete -n rg-tydzien-13-final  --yes --no-wait
+az group delete -n rg-tydzien-13-final-restore  --yes --no-wait
+
+# lista zasobow w grupie 
+az resource list  \
+--resource-group  rg-tydzien-13-final  \
+-o table
+
+az resource list  \
+--resource-group  rg-tydzien-13-final-restore  \
+-o table
+
+# lista grup aktywnej subskrypcji 
+az group list -o table

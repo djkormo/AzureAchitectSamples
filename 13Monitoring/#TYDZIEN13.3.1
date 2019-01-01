@@ -1,0 +1,65 @@
+13.3 Automation 
+Azure Automation z DSC to naprawdę bogate rozwiązanie. Daje spore możliwości i pozwala na co najmniej kilka ciekawych scenariuszy. Spróbuj zbudować dwa:
+
+
+1)	Spraw by twoja maszyna po utworzeniu miała zainstalowanego IIS z uruchomioną bazową stroną HTML, która zostanie pobrana z dowolnego miejsca z publicznym endpointem
+
+------------------
+Na początku poszukałem gotowego szablonu ARM.
+Dwie maszyny z Windows 2012 R2 , w grupie wysokiej dostępności z load balancerem z przodu.
+
+https://github.com/Azure/azure-quickstart-templates/tree/master/201-2-vms-loadbalancer-lbrules
+
+Jak wielkość maszyn wybrałem Standard D1 v2 (1 vcpus, 3.5 GB memory).
+
+Deployment uzupełniłem o jeden NSG z  portami 3389 (RDP) i 80 (HTTP).
+
+Zalogowałem się na obie maszyny i upewniłem się, że IIS nie jest zainstalowany.
+Zainstalowałem ręcznie 
+
+
+Do wdrożenia szablonu  przygotowałem spakowaną stroną z moimi ulubionymi szachami
+
+https://github.com/djkormo/simple-chess-ai/raw/master/simple-chess-ai.zip
+
+To co należy zrobić
+
+1. Utworzyć automation account
+
+2. Przygotować konfigurację, ja skorzystałem z gotowego rozwiążania
+
+https://gist.github.com/BernieWhite/23522e76765d8fa88db7abb5f03086ce?fbclid=IwAR0CbRSy1jmOCuSJoJmDN8ufkhRZ0J7R6EV0AEsNVAEA4LZtGCcKTM6IbHQ
+
+
+Po załadowaniu konfiguracji i jej  kompilacji z wartością  WEBSITEPACKAGEURI ustawioną na link z mojego githuba.
+
+
+Podłączyłem tę konfigurację do dwóćh nodów jakimi są obie maszyny wirtualny.
+Czas na kawę.....
+
+Po 15 minutach mamy zainstalowanego IIS i załadowaną stronę.  
+
+Pora na małą partyjkę szachów.
+
+
+
+-----------------------
+
+
+Wykorzystana literatura
+
+https://docs.microsoft.com/en-us/azure/automation/automation-dsc-getting-started
+
+https://microsoft.github.io/PartsUnlimited/
+
+
+Warto się zastanować jak to zrobić na linuxie ...
+
+https://medium.com/singlestone/bootstrapping-linux-vms-with-dsc-in-azure-2145f2beb30
+
+
+
+
+
+
+

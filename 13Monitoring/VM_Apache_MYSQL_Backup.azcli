@@ -108,10 +108,11 @@ az backup job list \
 az storage account create \
     --resource-group rg-tydzien-13-final \
     --name mystaccforcanadianvms \
-    --sku Standard_LRS
+    --sku Standard_LRS \
+    --location canadacentral
 
 # lista utworzonych punktów odzysku, po zakonczeniu operacji backup
-# odtworzenie z punktow odpowidnich maszych
+# odtworzenie z punktow odpowiednich maszych
 for i in `seq 1 2`; do
 echo $i
 az backup recoverypoint list \
@@ -178,25 +179,32 @@ for i in `seq 1 2`; do
     --resource-group rg-tydzien-13-final \
     --name myvmrestoreddisk$i \
     --sku Standard_LRS \
-    --source $uri
+    --source $uri \
+    --no-wait
+    
 
 done 
 
+az disk list --resource-group rg-tydzien-13-final -o table
+
+az disk create help
+
 # skasowanie niepotrzebnego konta magazynowego
-az storage account delete \
-    --resource-group rg-tydzien-13-final \
-    --name mystaccforcanadianvms
+
+#az storage account delete \
+#    --resource-group rg-tydzien-13-final \
+#    --name mystaccforcanadianvms
 
 az disk list  --resource-group  rg-tydzien-13-final  -o table
 
-az configure --defaults location=canadaeast
+az configure --defaults location=eastus
 
 # utworzenie maszyn z odtworzonego obrazu 
 # nowa RG
-az group create --name rg-tydzien-13-final-restore --location  canadaeast
+az group create --name rg-tydzien-13-final-restore --location  eastus
 # nowa siec
-az network vnet create -g rg-tydzien-13-final-restore -n VNET-VM-13 --address-prefix 10.1.0.0/16 \
-                            --subnet-name SUBNET-VM --subnet-prefix 10.1.0.0/24
+az network vnet create -g rg-tydzien-13-final-restore -n VNET-VM-13-restore --address-prefix 10.1.0.0/16 \
+                            --subnet-name SUBNET-VM-restore --subnet-prefix 10.1.0.0/24
 
 #  utworzenie zbioru wysokiej dostepnosci dla VM
 # nowa grupa Availability Set 
