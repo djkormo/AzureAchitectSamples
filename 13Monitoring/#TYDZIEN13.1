@@ -4,4 +4,39 @@ Ale nie tak szybko… masz przemyœleæ swoje wybory. U¿yj rozwi¹zania zarówno do na
 Jak podejdziesz do monitorowania aspektów bezpieczeñstwa? Których rozwi¹zañ u¿yjesz i dlaczego? Czy finansowo ma sens duplikowaæ role w ró¿nych rozwi¹zaniach w Azure?
  
  
+Chyba ostatni brakuj¹cy modu³......
+
+Do monitoringu nie tylko Azure podszed³em  stosuj¹c poni¿sze zasady:
+
+1. Dzia³amy proaktywnie a nie reaktywnie, logi analizujemy g³ównie celem unikniêcia awarii, a nie po awarii.
+
+2. Application Insight umo¿liwia nam ujednolicenie zbierania logów  aplikacji, czy uruchomionych na maszynach wirtualnych, czy wykorzystuj¹c us³ugi PaaS.
+Wa¿ne jest to, ¿e mamy jednolity sposób zbierania danych dla wielu jêzyków programowania.
+  
+3. W rozwi¹zaniach hybrydowych, gdzie mamy czêœæ infrastruktury na naszych blachach i czêœæ VM/PaaS/SaaS... w chmurze publicznej, zapewniamy sobie jednolity sposób logowania i analizy danych generowanych  przez oprogramowanie.
+
+
+4. Logi aplikacji obs³ugiwane za pomoc¹ Application Insight s¹ przechowywane maksymalnie 90 dni. Starsze wiadomoœci mo¿na dodatkowo eksportowaæ  na konto magazynowe przez
+Continuous Export, gdzie wskazujemy jakie informacje w formacie JSON maj¹ byæ cyklicznie zapisywane automatycznie.
+
+5. Monitoring infrastruktury przy wykorzystaniu Azure Monitor.  To jest ta czêœæ, która spina informacjê o topologii sieci, logów i zdrowia ca³oœæ naszej infrastruktury  
+W tym miejscu (zak³adka Insights) mamy zarówno informacje generowane z aplikacji, z VM, z kontenerów...
+
+6. Przygotowanie w³aœciwych metryk, powi¹zanie ich do alertów, gdzie mamy mo¿liwoœæ notyfikacjê e-mailem, uruchomienia funkcji,uruchomienia LogicsApp , uruchomienia runbooka, 
+
+7. Typowym wymaganiem, z którym musi siê zmierzyæ architektura rozwi¹zania jest wysy³ka logów do analizy bezpieczeñstwa SIEM (Security Information and Event Management)
+Azure Monitor potrafi siê z takimi us³ugami integrowaæ. Przyk³adem takiego programu jest IBM QRadar.  
  
+8. Cykliczna praca z Azure Security Center , weryfkacja rekomendacji, polityk i alertów. 
+
+ Literatura:
+ 
+ 
+ https://azure.microsoft.com/en-us/blog/use-azure-monitor-to-integrate-with-siem-tools/
+ https://www.ibm.com/support/knowledgecenter/en/SS42VS_7.3.1/com.ibm.qradar.doc/t_Cloud_Install_Qradar_Azure.html
+ https://docs.microsoft.com/en-us/azure/azure-monitor/app/data-retention-privacy
+ https://docs.microsoft.com/en-us/azure/azure-monitor/app/export-telemetry
+ 
+
+
+
