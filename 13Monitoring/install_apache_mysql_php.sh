@@ -12,7 +12,7 @@ echo mysql-server-5.6 mysql-server/root_password password $dbpass | debconf-set-
 echo mysql-server-5.6 mysql-server/root_password_again password $dbpass | debconf-set-selections
  
 # Install the LAMP stack 
-apt-get -y install apache2 mysql-server php php-mysql libapache2-mod-php php-mcrypt 
+apt-get -y install apache2 mysql-server php php-mysql libapache2-mod-php
 # Install additional packages
 apt-get -y install mc lynx 
 # put main page on WebSite
