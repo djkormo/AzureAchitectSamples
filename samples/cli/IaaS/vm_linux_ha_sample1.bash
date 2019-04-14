@@ -56,7 +56,7 @@ az vm extension set \
   --vm-name myapachemysql$i \
   --name customScript \
   --publisher Microsoft.Azure.Extensions \
-  --settings '{"fileUris": ["https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/13Monitoring/install_apache_mysql_php.sh"],"commandToExecute": "./install_apache_mysql_php.sh"}'
+  --settings '{"fileUris": ["https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/samples/cli/IaaS/install_apache_mysql_php.sh"],"commandToExecute": "./install_apache_mysql_php.sh"}'
 done
 
 
