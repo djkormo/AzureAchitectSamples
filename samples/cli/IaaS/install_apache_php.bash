@@ -32,7 +32,13 @@ git clone https://github.com/djkormo/simple-chess-ai
 cd simple-chess-ai && cp -R .  /var/www/html/ && cd .. && rm -r  simple-chess-ai/
 chmod a+x -R /var/www/html/
 
-cd 
+
+git clone https://github.com/djkormo/AzureAchitectSamples.git
+
+cd -R AzureAchitectSamples/samples/cli/IaaS/html/ /var/www/html/ 
+
+chmod a+x -R /var/www/html/
+
 
 
 
