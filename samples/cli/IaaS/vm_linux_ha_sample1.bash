@@ -60,5 +60,19 @@ az vm extension set \
 done
 
 
+# https://github.com/Azure/azure-cli-samples/blob/master/compute/availability-set.md
+# load balancer
+
+az network lb create -g $AZURE_GROUP -n LB1 --frontend-ip-name LBFE --backend-pool-name LBBE
+
+az network lb probe create -g $AZURE_GROUP -n HTTPPROBE --lb-name LB1 --port 80 --protocol tcp
+
+az network lb rule create -g $AZURE_GROUP -n HTTP80 \
+  --lb-name MyLB --probe-name HTTPPROBE --protocal tcp \
+  --frontend-ip-name LBFE  --frontend-port 80 \
+  --backend-pool-name LBBE --backend-port 80
+
+
+
 
 
