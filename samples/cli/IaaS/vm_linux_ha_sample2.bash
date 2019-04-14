@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#based on https://docs.microsoft.com/pl-pl/azure/networking/scripts/load-balancer-linux-cli-sample-nlb
 
 AZURE_GROUP=rg-vm-test2
 AZURE_LOCATION=westeurope
@@ -53,10 +54,9 @@ az network nsg rule create --resource-group $AZURE_GROUP --nsg-name myNetworkSec
   --destination-address-prefix '*' --destination-port-range 22 --access allow --priority 1000
 
 # Create a network security group rule for port 80.
-az network nsg rule create --resource-group $AZURE_GROUP --nsg-name myNetworkSecurityGroup \ 
-  --name myNetworkSecurityGroupRuleHTTP \
-  --protocol tcp --direction inbound --priority 1001 --source-address-prefix '*' --source-port-range '*' \
-  --destination-address-prefix '*' --destination-port-range 80 --access allow --priority 2000
+az network nsg rule create --resource-group $AZURE_GROUP --nsg-name myNetworkSecurityGroup \
+--name myNetworkSecurityGroupRuleHTTP \
+--protocol tcp --direction inbound  --destination-port-range 80 --access allow --priority 2000
 
 # Create two virtual network cards and associate with public IP address and NSG.
 for i in `seq 1 2`; do
@@ -93,7 +93,7 @@ az vm extension set \
   --vm-name myVM$i \
   --name customScript \
   --publisher Microsoft.Azure.Extensions \
-  --settings '{"fileUris": ["https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/samples/cli/IaaS/install_apache_php.sh"],"commandToExecute": "./install_apache_php.sh"}'
+  --settings '{"fileUris": ["https://raw.githubusercontent.com/djkormo/AzureAchitectSamples/master/samples/cli/IaaS/install_apache_php.bash"],"commandToExecute": "./install_apache_php.bash"}'
 done
 
 
