@@ -27,7 +27,7 @@ az vm availability-set create \
 # utworzenie dwoch VM z ubuntu  ramach tej samej Availabilty Set
 for i in `seq 1 2`; do
    az vm create \
-     --resource-group rg-tydzien-13-final \
+     --resource-group $AZURE_GROUP \
      --name myapachemysql$i \
      --availability-set $AZURE_AVSET \
      --size Standard_A1_v2  \
