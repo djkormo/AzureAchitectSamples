@@ -1,5 +1,7 @@
 #!/bin/bash
  
+# generating random number between 1 and 10 
+$(( ( RANDOM % 10 )  + 1 )) 
 apt-get -y update
  
 logger "Installing Apache WebSite"
